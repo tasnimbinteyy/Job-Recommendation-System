@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Modeling Skill Affinity for Personalized Employment Matching Systems  
+DMS Project – Frontend Version 2
 
-## Getting Started
+This project is a Next.js-based Administrative Data Management System (ADMS) developed to manage and visualize data for a personalized employment matching system.
 
-First, run the development server:
+The frontend allows administrators to view, add, update, and delete records related to skills, jobs and candidates using a clean and user-friendly interface.
 
+
+
+🌐 Live Deployment
+🔗 Vercel URL: https://job-recommendation-system-delta.vercel.app/
+
+
+
+🔍 Features (Instructor Requirements)
+
+1. Data Viewing (Read/View)
+- Records displayed in a table or grid format
+- Read-only mode to prevent accidental editing
+
+2. Data Modification (Create, Update, Delete)
+- Form to add new records
+- Pre-filled form to update existing records
+- Delete button available next to each record
+
+3. User Interface Essentials
+- Clean and responsive UI
+- Navigation between pages/forms
+- Notification messages for user actions (success/error)
+
+4. Technical Integration
+- POST and PUT requests used to send data to backend
+- Basic client-side validation (required fields)
+
+
+Screenshots
+
+> Screenshots demonstrate CRUD operations and UI functionality.
+
+Screenshot Folder path:
+https://github.com/tasnimbinteyy/Job-Recommendation-System/tree/main/public/screenshots
+
+Tech Stack
+- Framework: Next.js
+- Styling: Tailwind CSS
+- Icons: Lucide React
+- Deployment: Vercel
+
+
+## 🚀 Installation & Setup
+
+Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+git clone https://github.com/tasnimbinteyy/Job-Recommendation-System

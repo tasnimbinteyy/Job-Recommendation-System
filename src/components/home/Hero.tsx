@@ -11,14 +11,15 @@ export default function HeroSection() {
   ];
 
   return (
-    <section className="
+    <section
+      className="
       px-6 pt-24 pb-20
       bg-white text-slate-900
       transition-colors duration-300
       dark:bg-[#0B0F19] dark:text-white
-    ">
+    "
+    >
       <div className="mx-auto max-w-6xl text-center">
-
         {/* Badge */}
         <div className="mb-6 flex justify-center">
           <Badge
@@ -36,36 +37,44 @@ export default function HeroSection() {
         </div>
 
         {/* Headline */}
-        <h1 className="
+        <h1
+          className="
           mx-auto max-w-4xl
           text-4xl font-bold leading-tight
           sm:text-5xl md:text-6xl tracking-tight
-        ">
+        "
+        >
           Find Your Dream Job with{" "}
-          <span className="
+          <span
+            className="
             text-transparent bg-clip-text 
-            bg-gradient-to-r from-teal-400 to-blue-500
-          ">
+            bg-linear-to-r from-teal-400 to-blue-500
+          "
+          >
             AI Intelligence
           </span>
         </h1>
 
         {/* Description */}
-        <p className="
+        <p
+          className="
           mx-auto mt-6 max-w-2xl
           text-lg text-slate-600
           dark:text-gray-400
-        ">
-          Our advanced AI algorithms analyze your skills, experience, and 
-          preferences to match you with the perfect career opportunities. 
-          Start your journey today.
+        "
+        >
+          Our advanced AI algorithms analyze your skills, experience, and
+          preferences to match you with the perfect career opportunities. Start
+          your journey today.
         </p>
 
         {/* Buttons */}
-        <div className="
+        <div
+          className="
           mt-10 mb-20 flex flex-col items-center gap-4
           sm:flex-row sm:justify-center
-        ">
+        "
+        >
           <Button
             size="lg"
             className="
@@ -93,7 +102,7 @@ export default function HeroSection() {
           </Button>
         </div>
 
-        {/* NEW: Stats Section (From Picture) */}
+       
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 py-10 border-t border-slate-200 dark:border-gray-800">
           {stats.map((stat, index) => (
             <div key={index} className="flex flex-col gap-1">
@@ -106,7 +115,6 @@ export default function HeroSection() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );

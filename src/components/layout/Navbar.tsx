@@ -5,12 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sun, Moon, Briefcase } from "lucide-react"; 
+import { Menu, Sun, Moon, Briefcase, LayoutDashboard } from "lucide-react"; 
 import { useTheme } from "next-themes";
+
 
 const links = [
   { name: "Home", href: "/" },
-  { name: "Browse Jobs", href: "/jobs" },
+  { name: "Browse Jobs", href: "/browse" }, 
   { name: "Companies", href: "/companies" },
   { name: "About", href: "/about" },
 ];
@@ -18,11 +19,8 @@ const links = [
 export default function Navbar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
-  
-  
   const [mounted, setMounted] = useState(false);
 
-  
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -34,7 +32,7 @@ export default function Navbar() {
         {/* Logo Section */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="p-1.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 group-hover:bg-teal-500 group-hover:text-white transition-all">
+            <div className="p-1.5 rounded-lg bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 group-hover:bg-teal-50 group-hover:text-white transition-all">
               <Briefcase size={22} strokeWidth={2.5} />
             </div>
             <span className="font-bold text-xl tracking-tight text-slate-900 dark:text-white">
@@ -63,13 +61,11 @@ export default function Navbar() {
         {/* Action Buttons & Theme Toggle */}
         <div className="hidden md:flex items-center gap-4">
           
-          
           <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 transition-colors text-slate-600 dark:text-gray-400 h-10 w-10 flex items-center justify-center"
             aria-label="Toggle Theme"
           >
-            
             {mounted ? (
               theme === "dark" ? <Sun size={20} /> : <Moon size={20} />
             ) : (
@@ -77,9 +73,12 @@ export default function Navbar() {
             )}
           </button>
           
-          <Button variant="ghost" className="text-slate-600 dark:text-gray-300 font-medium">
-            Sign In
-          </Button>
+          
+          <Link href="/jobs">
+            <Button variant="ghost" className={`gap-2 font-medium ${pathname === '/jobs' ? 'text-teal-500' : 'text-slate-600 dark:text-gray-300'}`}>
+              <LayoutDashboard size={18} /> Dashboard
+            </Button>
+          </Link>
           
           <Button className="rounded-xl bg-teal-500 px-6 font-bold text-white hover:bg-teal-600 shadow-lg shadow-teal-500/20">
             Get Started
@@ -100,6 +99,10 @@ export default function Navbar() {
               ))}
               
              
+              <Link href="/jobs" className="text-lg font-semibold text-teal-500">
+                Dashboard
+              </Link>
+
               <div className="flex items-center justify-between mt-4">
                 <span className="text-sm font-medium">Theme</span>
                 <button
@@ -111,7 +114,6 @@ export default function Navbar() {
               </div>
 
               <hr className="border-slate-200 dark:border-white/10" />
-              <Button variant="outline" className="rounded-xl w-full">Sign In</Button>
               <Button className="bg-teal-500 text-white rounded-xl w-full">Get Started</Button>
             </div>
           </SheetContent>

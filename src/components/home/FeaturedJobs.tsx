@@ -95,7 +95,6 @@ function JobCard({ job }: { job: any }) {
               Apply Now
             </Button>
             
-            {/* Save Button with Hover Effect */}
             <Button 
               variant="outline" 
               className="group/save flex-1 border-slate-200 dark:border-white/10 dark:text-white dark:hover:bg-teal-500/10 dark:hover:border-teal-500/50 hover:border-teal-500 hover:text-teal-600 h-11 rounded-xl text-xs transition-all duration-300 active:scale-90"
@@ -136,13 +135,10 @@ export default function FeaturedJobs() {
   }, []);
 
   return (
-    // py-32 থেকে কমিয়ে py-16 করা হয়েছে যাতে টপ স্পেস কমে
     <section className="relative px-6 py-16 bg-slate-50 dark:bg-[#020617] transition-colors duration-500 overflow-hidden">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-teal-500/20 to-transparent" />
-        <div className="absolute -bottom-[10%] -left-[5%] w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full" />
-      </div>
-
+      {/* নিচের কন্টেইনার থেকে ডেকোরেটিভ লাইট এবং ব্লু গ্লো সরিয়ে দেওয়া হয়েছে।
+          এখন এটি একদম সলিড ডার্ক বা লাইট ব্যাকগ্রাউন্ড দেখাবে। 
+      */}
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="mb-16 space-y-6 ml-0 md:ml-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm">

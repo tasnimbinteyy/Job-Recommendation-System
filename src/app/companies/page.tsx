@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Search, ChevronDown, Check, Building2, Star, Users, MapPin, ExternalLink } from "lucide-react";
+import { motion } from "framer-motion";
+import { Search, ChevronDown, Check, Building2, Star, Users, MapPin, ExternalLink, Sparkles, Zap, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Mock data matching the companies in your images (image_6b0238.jpg & image_6b0239.jpg)
 const companiesData = [
   {
     name: "TechCorp Inc.",
@@ -74,129 +74,112 @@ const companiesData = [
   }
 ];
 
+
 export default function CompaniesPage() {
   const [sortBy, setSortBy] = useState("Most Open Jobs");
 
-  return (
-    <div className="min-h-screen bg-[#0B0F19] text-white selection:bg-teal-500/30">
-      
-      {/* --- HERO SECTION (image_6b0236.png) --- */}
-      <section className="py-20 px-6 text-center">
-        <h1 className="text-5xl font-extrabold mb-4 tracking-tight">Explore Companies</h1>
-        <p className="text-slate-400 text-lg mb-10 font-medium">Discover 6+ companies hiring now</p>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.2 } }
+  };
 
-        {/* --- SEARCH & FILTERS BAR --- */}
-        <div className="max-w-5xl mx-auto flex flex-wrap gap-4 justify-center">
-          <div className="relative flex-[2] min-w-[320px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={20} />
-            <input
-              type="text"
-              placeholder="Search companies..."
-              className="w-full bg-[#111827] border border-gray-800 rounded-2xl py-4 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-teal-500/40 transition-all placeholder:text-slate-600"
-            />
+  const itemVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] } }
+  };
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-[#020617] text-slate-900 dark:text-white transition-colors duration-500 selection:bg-teal-500/30">
+      
+      {/* --- HERO SECTION --- */}
+      <section className="pt-32 md:pt-48 pb-20 px-6 text-center relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-teal-500/5 blur-[120px] rounded-full pointer-events-none" />
+
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 max-w-4xl mx-auto">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-[10px] font-black uppercase tracking-[0.2em] mb-8 shadow-sm">
+            <Sparkles size={14} className="animate-pulse" /> Verified Workspaces
           </div>
           
-          <Button variant="outline" className="h-[60px] px-6 gap-2 rounded-2xl border-gray-800 bg-[#111827] hover:border-teal-500/30 font-semibold">
-            All Industries <ChevronDown size={18} className="text-slate-500" />
-          </Button>
+          <h1 className="text-6xl md:text-8xl font-black mb-8 tracking-tighter leading-tight">
+            Dream <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-blue-500">Companies</span>
+          </h1>
           
-          <Button variant="outline" className="h-[60px] px-6 gap-2 rounded-2xl border-gray-800 bg-[#111827] hover:border-teal-500/30 font-semibold">
-            All Sizes <ChevronDown size={18} className="text-slate-500" />
-          </Button>
-        </div>
+          <p className="text-slate-500 dark:text-slate-400 text-lg md:text-xl mb-12 font-medium max-w-2xl mx-auto">
+            Discover {companiesData.length} industry-leading organizations built on innovation and culture.
+          </p>
+
+          <div className="max-w-2xl mx-auto p-3 bg-white/80 dark:bg-slate-900/80 shadow-2xl rounded-[32px] border border-slate-200 dark:border-white/10 backdrop-blur-xl flex flex-col md:flex-row gap-2">
+            <div className="relative flex-1 flex items-center">
+              <Search className="absolute left-5 text-slate-400" size={20} />
+              <input type="text" placeholder="Search company name..." className="w-full bg-transparent py-4 pl-14 pr-4 focus:outline-none font-bold text-sm" />
+            </div>
+            <Button className="h-14 px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-950 rounded-2xl font-black transition-all hover:scale-105 active:scale-95 shadow-xl">Explore</Button>
+          </div>
+        </motion.div>
       </section>
 
-      {/* --- RESULTS HEADER (image_6b05a1.jpg) --- */}
-      <div className="max-w-7xl mx-auto px-6 mb-10">
-        <div className="flex justify-between items-center border-b border-white/5 pb-8">
-          <div className="text-slate-500 text-sm font-medium">
-            Showing <span className="text-teal-400 font-bold text-base">6</span> companies
-          </div>
-
-          <DropdownMenu>
+      {/* --- GRID SECTION --- */}
+      <div className="max-w-7xl mx-auto px-6 pb-40">
+        <div className="flex justify-between items-end mb-12 border-b border-slate-100 dark:border-white/5 pb-8">
+           <h2 className="text-3xl font-black tracking-tight">Top Picks</h2>
+           
+           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="group gap-4 bg-[#111827] border-gray-800 px-6 py-7 rounded-2xl border-2 hover:border-teal-500/50 transition-all shadow-xl"
-              >
-                <span className="font-bold text-base">{sortBy}</span>
-                <ChevronDown size={20} className="text-slate-500 group-hover:text-teal-400 transition-colors" />
+              <Button variant="outline" className="h-12 rounded-xl border-slate-200 dark:border-white/10 dark:bg-slate-900/50 font-bold px-6 gap-3">
+                {sortBy} <ChevronDown size={18} className="text-teal-500" />
               </Button>
             </DropdownMenuTrigger>
-            
-            <DropdownMenuContent align="end" className="bg-[#111827] border-gray-800 text-white w-64 p-2 rounded-2xl shadow-2xl border-2">
+            <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-white/10 p-2 rounded-2xl shadow-2xl">
               {["Most Open Jobs", "Highest Rated", "Name A-Z"].map((option) => (
-                <DropdownMenuItem
-                  key={option}
-                  onClick={() => setSortBy(option)}
-                  className={`flex items-center gap-3 p-4 my-1 rounded-xl cursor-pointer transition-all ${
-                    sortBy === option 
-                      ? "bg-[#F59E0B] text-black font-bold border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]" 
-                      : "hover:bg-teal-500/10 hover:text-teal-400"
-                  }`}
-                >
-                  {sortBy === option && <Check size={18} strokeWidth={3} />}
-                  <span className="text-base">{option}</span>
+                <DropdownMenuItem key={option} onClick={() => setSortBy(option)} className="p-4 my-1 rounded-xl cursor-pointer focus:bg-teal-500 focus:text-white font-bold">
+                  {option}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
 
-      {/* --- COMPANY CARDS GRID (image_6b0238.jpg) --- */}
-      <div className="max-w-7xl mx-auto px-6 pb-24 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {companiesData.map((company) => (
-          <div key={company.name} className="bg-[#111827] border border-gray-800 rounded-[32px] p-8 hover:border-teal-500/40 transition-all group flex flex-col h-full shadow-lg">
-            
-            {/* Top Bar: Icon & Rating */}
-            <div className="flex items-start justify-between mb-6">
-              <div className="p-4 bg-teal-500/10 rounded-2xl text-teal-400 border border-teal-500/20 group-hover:bg-teal-500 group-hover:text-black transition-all duration-300">
-                <Building2 size={32} />
+        <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {companiesData.map((company) => (
+            <motion.div key={company.name} variants={itemVariants} className="group relative">
+              {/* Glow Effect on Hover */}
+              <div className="absolute -inset-[1px] bg-gradient-to-r from-teal-500 to-blue-500 rounded-[42px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-[2px]" />
+              
+              <div className="relative bg-white dark:bg-slate-900 border border-slate-100 dark:border-white/5 rounded-[40px] p-8 h-full flex flex-col transition-all duration-500 group-hover:translate-y-[-10px]">
+                <div className="flex justify-between items-start mb-8">
+                  <div className="h-16 w-16 bg-slate-50 dark:bg-white/5 rounded-2xl flex items-center justify-center border border-slate-100 dark:border-white/10 group-hover:rotate-12 transition-transform duration-500">
+                    <Building2 size={32} className="text-teal-500" />
+                  </div>
+                  <div className="flex items-center gap-1.5 text-amber-500 font-black bg-amber-500/10 px-4 py-1.5 rounded-full border border-amber-500/20 text-[10px]">
+                    <Star size={12} fill="currentColor" /> {company.rating}
+                  </div>
+                </div>
+
+                <h3 className="text-2xl font-black mb-1 group-hover:text-teal-500 transition-colors flex items-center gap-2">
+                  {company.name} <ArrowUpRight size={18} className="opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
+                </h3>
+                <p className="text-teal-500 text-[10px] font-black uppercase tracking-widest mb-6">{company.industry}</p>
+
+                <div className="space-y-4 mb-8 border-y border-slate-50 dark:border-white/5 py-6">
+                  <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 text-sm font-bold">
+                    <MapPin size={18} className="text-teal-500/60" /> {company.location}
+                  </div>
+                  <div className="flex items-center gap-3 text-slate-900 dark:text-white text-sm font-black">
+                    <Zap size={18} className="text-teal-500" fill="currentColor" /> {company.openPositions} Open Positions
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-auto">
+                  {company.tags.map(tag => (
+                    <span key={tag} className="px-3 py-1.5 bg-slate-50 dark:bg-white/5 rounded-xl text-[9px] font-black text-slate-400 border border-white/5 uppercase">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 text-amber-400 font-bold bg-amber-400/5 px-3 py-1 rounded-full border border-amber-400/10">
-                <Star size={16} fill="currentColor" /> {company.rating}
-              </div>
-            </div>
-
-            {/* Content */}
-            <h3 className="text-2xl font-bold mb-1 group-hover:text-teal-400 transition-colors">{company.name}</h3>
-            <p className="text-teal-500/80 text-sm font-bold mb-6 uppercase tracking-wider">{company.industry}</p>
-
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center gap-3 text-slate-400 text-sm">
-                <MapPin size={18} className="text-teal-500/60" /> {company.location}
-              </div>
-              <div className="flex items-center gap-3 text-slate-400 text-sm">
-                <Users size={18} className="text-teal-500/60" /> {company.employees}
-              </div>
-              <div className="flex items-center gap-3 text-slate-300 text-sm font-semibold">
-                <Building2 size={18} className="text-teal-400" /> {company.openPositions} open positions
-              </div>
-            </div>
-
-            <p className="text-slate-400 text-sm mb-8 line-clamp-2 leading-relaxed">{company.description}</p>
-
-            {/* Tags (image_6b0238.jpg style) */}
-            <div className="flex flex-wrap gap-2 mb-10 mt-auto">
-              {company.tags.map(tag => (
-                <span key={tag} className="px-3 py-1.5 bg-slate-800/40 rounded-xl text-[11px] font-bold text-slate-400 border border-white/5 uppercase tracking-tighter">
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            {/* Actions (Teal Buttons with Hover Glow) */}
-            <div className="flex gap-4">
-              <Button variant="outline" className="flex-[1.2] rounded-2xl border-gray-800 bg-transparent text-white hover:bg-white/5 gap-2 h-14 font-bold transition-all">
-                View Profile <ExternalLink size={14} />
-              </Button>
-              <Button className="flex-1 rounded-2xl bg-teal-500 text-black font-black hover:bg-teal-400 shadow-lg hover:shadow-teal-500/30 hover:-translate-y-1 transition-all duration-300 h-14">
-                {company.openPositions} Jobs
-              </Button>
-            </div>
-          </div>
-        ))}
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </div>
   );

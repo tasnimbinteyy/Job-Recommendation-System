@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+// schema.prisma
+
+?
+
+// ১. ইউজার মডেল (NextAuth-এর সাথে সামঞ্জস্যপূর্ণ)
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?   // আপনার নেভবার প্রোফাইল পিকচারের জন্য
+  role          Role      @default(STUDENT) // STUDENT, EMPLOYER, ADMIN
+  
+  // প্রোফাইল ডিটেইলস
+  skills        String[]  // ইউজার স্কিলস (Cosine Similarity-তে ব্যবহৃত হবে)
+  experience    String?
+  resumeUrl     String?
+  
+  applications  Application[]
+  createdAt     DateTime  @default(now())
+}
+
+enum Role {
+  STUDENT
+  EMPLOYER
+  ADMIN
+}
+
+// ২. জব মডেল
+model Job {
+  id              String   @id @default(cuid())
+  title           String   // যেমন: "Frontend Architect"
+  description     String
+  companyName     String
+  location        String
+  salaryRange     String?
+  requiredSkills  String[] // জবের প্রয়োজনীয় স্কিলস
+  
+  applications    Application[]
+  createdAt       DateTime @default(now())
+  
+  @@index([title]) // ADBS কোর্সের জন্য ইনডেক্সিং গুরুত্বপূর্ণ
+}
+
+// ৩. অ্যাপ্লিকেশন ও ম্যাচিং স্কোর মডেল
+model Application {
+  id           String   @id @default(cuid())
+  userId       String
+  jobId        String
+  status       String   @default("PENDING")
+  
+  // আপনার "Matching DNA" ফিচারের জন্য
+  matchScore   Float?   // AI দ্বারা ক্যালকুলেট করা স্কোর (যেমন: ৯৮.৫)
+  
+  user         User     @relation(fields: [userId], references: [id])
+  job          Job      @relation(fields: [jobId], references: [id])
+  createdAt    DateTime @default(now())
+}

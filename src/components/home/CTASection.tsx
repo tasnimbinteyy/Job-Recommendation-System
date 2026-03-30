@@ -15,33 +15,34 @@ export default function CTASection() {
   }
 
   return (
-    <section className="py-10 px-6 bg-white dark:bg-[#06080F] transition-colors duration-500">
+    // এখানে FeaturedJobs এর মতো bg-slate-50 এবং dark:bg-[#020617] ব্যবহার করা হয়েছে
+    <section className="py-10 px-6 bg-slate-50 dark:bg-[#020617] transition-colors duration-500">
       <div
         onMouseMove={handleMouseMove}
-        className="group relative max-w-6xl mx-auto rounded-[3rem] overflow-hidden min-h-[480px] flex items-center justify-center border border-slate-200 dark:border-white/10 shadow-2xl"
+        className="group relative max-w-6xl mx-auto rounded-[3rem] overflow-hidden min-h-[480px] flex items-center justify-center border border-slate-200 dark:border-white/5 shadow-2xl"
       >
-        {/* Background Image Layer - Opacity set to high for clarity */}
+        {/* Background Image Layer - Opacity adjusted for dark theme consistency */}
         <div
-          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105 opacity-100 dark:opacity-80"
+          className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-transform duration-1000 group-hover:scale-105 opacity-100 dark:opacity-50"
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop')`,
           }}
         />
 
-        {/* স্বচ্ছ ওভারলে: এটি ইমেজকে ঢেকে দেবে না, শুধু টেক্সটের নিচে গভীরতা যোগ করবে */}
-        <div className="absolute inset-0 z-10 bg-transparent dark:bg-black/20 transition-colors" />
+        {/* Overlays: dark:bg-[#020617] এর সাথে ব্লেন্ড করার জন্য আপডেট করা হয়েছে */}
+        <div className="absolute inset-0 z-10 bg-transparent dark:bg-[#020617]/40 transition-colors" />
         
-        {/* বাম দিকের গ্রেডিয়েন্ট যা টেক্সটকে ফুটিয়ে তুলবে কিন্তু ডান দিকের ইমেজ ক্লিয়ার রাখবে */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-white/40 to-transparent dark:from-slate-950 dark:via-slate-950/30 dark:to-transparent" />
+        {/* Gradient Overlay: FeaturedJobs এর মতো ডার্ক কালার ব্যবহার করা হয়েছে */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-white/40 to-transparent dark:from-[#020617] dark:via-[#020617]/60 dark:to-transparent" />
 
-        {/* Aceternity Interactive Glow - খুব হালকা করে রাখা হয়েছে */}
+        {/* Aceternity Interactive Glow */}
         <motion.div
           className="pointer-events-none absolute inset-0 z-20 opacity-0 transition duration-500 group-hover:opacity-100"
           style={{
             background: useMotionTemplate`
               radial-gradient(
                 650px circle at ${mouseX}px ${mouseY}px,
-                rgba(20, 184, 166, 0.12),
+                rgba(20, 184, 166, 0.15),
                 transparent 80%
               )
             `,
@@ -69,16 +70,14 @@ export default function CTASection() {
           </div>
 
           <div className="flex flex-col gap-5 max-w-sm ml-auto w-full">
-            {/* Launch Button - High Contrast */}
             <Button className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn">
               Launch Profile
               <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />
             </Button>
 
-            {/* Learn More - Glass Effect without Blur for clarity */}
             <Button
               variant="outline"
-              className="h-16 border-white/30 bg-white/10 dark:bg-white/5 text-white hover:bg-white/20 text-lg font-bold rounded-2xl transition-all flex items-center justify-between px-10"
+              className="h-16 border-white/30 bg-white/10 dark:bg-white/5 text-white hover:bg-white/20 text-lg font-bold rounded-2xl transition-all flex items-center justify-between px-10 backdrop-blur-md"
             >
               Learn More
               <Info className="h-5 w-5 opacity-80" />

@@ -66,7 +66,7 @@ export default function JobForm({ initialData, onSubmit, buttonText }: JobFormPr
   });
 
   return (
-    <Card className="border-teal-500/20 shadow-lg dark:bg-slate-950/50">
+    <Card className="border-teal-500/20 shadow-lg dark:bg-[#020617]">
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">

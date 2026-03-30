@@ -5,7 +5,7 @@ import { Command } from "cmdk";
 import { Search, Briefcase, Building, LayoutDashboard } from "lucide-react";
 
 export function SearchModal({ open, setOpen }: { open: boolean, setOpen: (open: boolean) => void }) {
-  // Ctrl + K শর্টকাট লজিক
+
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {

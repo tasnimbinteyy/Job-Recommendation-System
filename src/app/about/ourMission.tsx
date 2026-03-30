@@ -1,4 +1,6 @@
+"use client"; 
 import React from "react";
+import { motion } from "framer-motion";
 
 const MissionSection = () => {
   const stats = [
@@ -32,12 +34,32 @@ const MissionSection = () => {
     },
   ];
 
+  // Animation Variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 }, // একটির পর একটি কার্ড আসবে
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
   return (
-    <section className="bg-white dark:bg-[#0B0F19] py-20 px-6 transition-colors duration-300">
+    <section className="bg-white dark:bg-[#0B0F19] py-20 px-6 transition-colors duration-500 ease-in-out overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
         
-        {/* Left Side: Content (Exact Width Control) */}
-        <div className="w-full lg:w-1/2 space-y-8">
+        {/* Left Side: Content with Fade-In Animation */}
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="w-full lg:w-1/2 space-y-8"
+        >
           <h2 className="text-5xl font-bold text-slate-900 dark:text-white tracking-tight">
             Our Mission
           </h2>
@@ -53,26 +75,43 @@ const MissionSection = () => {
               where they can truly thrive.
             </p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Right Side: Stats Grid (Exact 2x2 Image Style) */}
-        <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Right Side: Stats Grid with Staggered Scale-In Animation */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
           {stats.map((stat, index) => (
-            <div
+            <motion.div
               key={index}
+              variants={itemVariants}
+              whileHover={{ 
+                scale: 1.05, 
+                rotateZ: index % 2 === 0 ? 1 : -1, // হালকা রোটেট ইফেক্ট
+                transition: { duration: 0.2 } 
+              }}
               className={`p-10 rounded-2xl border ${stat.bgColor} ${stat.borderColor} 
               flex flex-col items-center justify-center text-center 
-              transition-all duration-300 hover:scale-[1.02]`}
+              transition-colors duration-500 shadow-sm hover:shadow-xl cursor-default group`}
             >
-              <span className={`text-5xl font-bold mb-2 tracking-tighter ${stat.textColor}`}>
+              <motion.span 
+                initial={{ scale: 0.5 }}
+                whileInView={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 100, delay: 0.2 + index * 0.1 }}
+                className={`text-5xl font-bold mb-2 tracking-tighter ${stat.textColor}`}
+              >
                 {stat.value}
-              </span>
-              <span className="text-slate-500 dark:text-slate-400 font-medium text-base uppercase tracking-wider">
+              </motion.span>
+              <span className="text-slate-500 dark:text-slate-400 font-medium text-base uppercase tracking-wider group-hover:text-slate-700 dark:group-hover:text-slate-200 transition-colors">
                 {stat.label}
               </span>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
       </div>
     </section>

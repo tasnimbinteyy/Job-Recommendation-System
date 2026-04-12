@@ -14,22 +14,22 @@ datasource db {
 }
 
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String?         @unique
+  email         String?   @unique
   emailVerified DateTime?
-  image         String?         
-  role          Role            @default(STUDENT)
+  image         String?   
+  role          Role      @default(STUDENT)
   
   // Profile Details
-  skills        String[]        // Stored as an array for Cosine Similarity
+  skills        String[]  
   experience    String?
   resumeUrl     String?
   
   // Relations
   applications  Application[]
-  jobsPosted    Job[]           @relation("EmployerJobs") // For Employers
-  createdAt     DateTime        @default(now())
+  jobsPosted    Job[]         @relation("EmployerJobs") 
+  createdAt     DateTime      @default(now())
   accounts      Account[]
   sessions      Session[]
 }
@@ -40,7 +40,6 @@ enum Role {
   ADMIN
 }
 
-// 2. Job Model
 model Job {
   id             String        @id @default(cuid())
   title          String        
@@ -48,35 +47,29 @@ model Job {
   companyName    String
   location       String
   salaryRange    String?
-  requiredSkills String[]      // Skills required for the job
+  requiredSkills String[]      
   
-  // Relations
   employerId     String
   employer       User          @relation("EmployerJobs", fields: [employerId], references: [id])
   applications   Application[]
   createdAt      DateTime      @default(now())
 
-  @@index([title]) // Optimized search for ADBS
+  @@index([title]) 
 }
 
-// 3. Application & Matching Score
 model Application {
   id         String   @id @default(cuid())
   userId     String
   jobId      String
   status     String   @default("PENDING")
-  
-  // Skill Affinity / AI Score
-  matchScore Float?   // Calculated by your matching algorithm
+  matchScore Float?   
   
   user       User     @relation(fields: [userId], references: [id])
   job        Job      @relation(fields: [jobId], references: [id])
   createdAt  DateTime @default(now())
 
-  @@unique([userId, jobId]) // Prevents a user from applying to the same job twice
+  @@unique([userId, jobId]) 
 }
-
-// schema.prisma ফাইলে User মডেলের নিচে এগুলো যোগ করুন
 
 model Account {
   id                 String  @id @default(cuid())
@@ -84,12 +77,12 @@ model Account {
   type               String
   provider           String
   providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
   expires_at         Int?
   token_type         String?
   scope              String?
-  id_token           String?  @db.Text
+  id_token           String? @db.Text
   session_state      String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -112,3 +105,104 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+// model User {
+//   id            String          @id @default(cuid())
+//   name          String?
+//   email         String?         @unique
+//   emailVerified DateTime?
+//   image         String?         
+//   role          Role            @default(STUDENT)
+  
+//   // Profile Details
+//   skills        String[]        // Stored as an array for Cosine Similarity
+//   experience    String?
+//   resumeUrl     String?
+  
+//   // Relations
+//   applications  Application[]
+//   jobsPosted    Job[]           @relation("EmployerJobs") // For Employers
+//   createdAt     DateTime        @default(now())
+//   accounts      Account[]
+//   sessions      Session[]
+// }
+
+// enum Role {
+//   STUDENT
+//   EMPLOYER
+//   ADMIN
+// }
+
+// // 2. Job Model
+// model Job {
+//   id             String        @id @default(cuid())
+//   title          String        
+//   description    String
+//   companyName    String
+//   location       String
+//   salaryRange    String?
+//   requiredSkills String[]      // Skills required for the job
+  
+//   // Relations
+//   employerId     String
+//   employer       User          @relation("EmployerJobs", fields: [employerId], references: [id])
+//   applications   Application[]
+//   createdAt      DateTime      @default(now())
+
+//   @@index([title]) // Optimized search for ADBS
+// }
+
+// // 3. Application & Matching Score
+// model Application {
+//   id         String   @id @default(cuid())
+//   userId     String
+//   jobId      String
+//   status     String   @default("PENDING")
+  
+//   // Skill Affinity / AI Score
+//   matchScore Float?   // Calculated by your matching algorithm
+  
+//   user       User     @relation(fields: [userId], references: [id])
+//   job        Job      @relation(fields: [jobId], references: [id])
+//   createdAt  DateTime @default(now())
+
+//   @@unique([userId, jobId]) // Prevents a user from applying to the same job twice
+// }
+
+// // schema.prisma ফাইলে User মডেলের নিচে এগুলো যোগ করুন
+
+// model Account {
+//   id                 String  @id @default(cuid())
+//   userId             String
+//   type               String
+//   provider           String
+//   providerAccountId  String
+//   refresh_token      String?  @db.Text
+//   access_token       String?  @db.Text
+//   expires_at         Int?
+//   token_type         String?
+//   scope              String?
+//   id_token           String?  @db.Text
+//   session_state      String?
+
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+//   @@unique([provider, providerAccountId])
+// }
+
+// model Session {
+//   id           String   @id @default(cuid())
+//   sessionToken String   @unique
+//   userId       String
+//   expires      DateTime
+//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
+
+// model VerificationToken {
+//   identifier String
+//   token      String   @unique
+//   expires    DateTime
+
+//   @@unique([identifier, token])
+// }
+

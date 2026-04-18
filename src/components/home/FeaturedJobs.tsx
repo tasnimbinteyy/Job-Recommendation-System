@@ -113,25 +113,31 @@ export default function FeaturedJobs() {
   const [displayJobs, setDisplayJobs] = useState<any[]>([]);
 
   useEffect(() => {
-    try {
-      const savedJobs = JSON.parse(localStorage.getItem("jobs") || "[]");
-      if (!Array.isArray(savedJobs) || savedJobs.length === 0) {
-        const defaultJobs = [
-          { id: "def-1", title: "Principal Frontend Engineer", company: "MetaStream Pro", match: 98, location: "Remote", type: "Full-time", salary: "$140K", posted: "1h ago", description: "Spearheading UI architecture for next-gen platforms.", skills: ["React", "Next.js", "WebAssembly"] },
-          { id: "def-2", title: "Senior AI Researcher", company: "DeepLogic AI", match: 94, location: "New York", type: "Full-time", salary: "$160K", posted: "4h ago", description: "Applying cutting-edge LLM techniques.", skills: ["Python", "PyTorch", "NLP"] },
-          { id: "def-3", title: "Product Strategist", company: "GrowthX", match: 87, location: "London", type: "Hybrid", salary: "$110K", posted: "1d ago", description: "Defining global product-led growth strategy.", skills: ["Strategy", "Analytics", "UX"] },
-        ];
-        setDisplayJobs(defaultJobs);
-      } else {
-        const formatted = savedJobs.map((j: any, i: number) => ({
-          ...j,
-          id: j.id ? `${j.id}-unique-${i}` : `job-unique-${i}`,
-          match: parseInt(j.match) || 85,
-          skills: Array.isArray(j.skills) ? j.skills : ["General"]
-        }));
-        setDisplayJobs(formatted.slice(-3).reverse());
-      }
-    } catch (err) { console.error(err); }
+    fetch("/api/jobs")
+      .then((r) => r.json())
+      .then((json) => {
+        if (json.data && json.data.length > 0) {
+          setDisplayJobs(json.data.slice(0, 3).map((j: any) => ({
+            id: j.id,
+            title: j.title,
+            company: j.companyName,
+            location: j.location,
+            salary: j.salaryRange || "Competitive",
+            type: "Full-time",
+            posted: new Date(j.createdAt).toLocaleDateString(),
+            description: j.description,
+            skills: j.requiredSkills,
+            match: 0,
+          })));
+        } else {
+          setDisplayJobs([
+            { id: "def-1", title: "Principal Frontend Engineer", company: "MetaStream Pro", match: 98, location: "Remote", type: "Full-time", salary: "$140K", posted: "1h ago", description: "Spearheading UI architecture for next-gen platforms.", skills: ["React", "Next.js", "WebAssembly"] },
+            { id: "def-2", title: "Senior AI Researcher", company: "DeepLogic AI", match: 94, location: "New York", type: "Full-time", salary: "$160K", posted: "4h ago", description: "Applying cutting-edge LLM techniques.", skills: ["Python", "PyTorch", "NLP"] },
+            { id: "def-3", title: "Product Strategist", company: "GrowthX", match: 87, location: "London", type: "Hybrid", salary: "$110K", posted: "1d ago", description: "Defining global product-led growth strategy.", skills: ["Strategy", "Analytics", "UX"] },
+          ]);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   return (

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import JobForm from "@/components/jobs/JobForm";
+import JobForm, { type JobFormData } from "@/components/jobs/JobForm";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ArrowLeft, Briefcase, ShieldCheck, Globe, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -11,42 +12,30 @@ export default function AddJobPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCreate = (data: any) => {
+  const handleCreate = async (data: JobFormData) => {
     setIsSubmitting(true);
-
-    // ইউজার এক্সপেরিয়েন্সের জন্য একটি ছোট ডিলে
-    setTimeout(() => {
-      const existingJobs = JSON.parse(localStorage.getItem("jobs") || "[]");
-
-      const newJob = {
-        ...data,
-        id: `JOB-${Math.floor(1000 + Math.random() * 9000)}`,
-        match: `${Math.floor(Math.random() * 20) + 75}%`, 
-        createdAt: new Date().toISOString(),
-      };
-
-      const updatedJobs = [newJob, ...existingJobs];
-      localStorage.setItem("jobs", JSON.stringify(updatedJobs));
-
-      setIsSubmitting(false);
+    try {
+      const res = await fetch("/api/jobs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to create job");
+      toast.success("Job posted successfully!");
       router.push("/jobs");
-    }, 1200);
+    } catch (err: any) {
+      toast.error(err.message);
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#04070D] transition-colors duration-500 pt-32 pb-20 overflow-hidden relative">
-      
-      {/* Background Decorative Gradient */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-teal-500/5 blur-[120px] rounded-full pointer-events-none" />
-      
+
       <div className="container mx-auto px-6 max-w-3xl relative z-10">
-        
-        {/* Navigation Back */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
           <Link
             href="/jobs"
             className="group inline-flex items-center text-slate-500 hover:text-teal-600 dark:hover:text-teal-400 mb-10 gap-3 transition-all font-semibold text-sm"
@@ -58,17 +47,16 @@ export default function AddJobPage() {
           </Link>
         </motion.div>
 
-        {/* Header Section */}
         <div className="mb-12">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-400 text-[11px] font-black uppercase tracking-[0.2em] mb-6 border border-teal-100 dark:border-teal-500/20"
           >
             <Briefcase size={14} /> Global Talent Network
           </motion.div>
-          
-          <motion.h1 
+
+          <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -79,56 +67,24 @@ export default function AddJobPage() {
               Listing
             </span>
           </motion.h1>
-          
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-slate-500 dark:text-slate-400 mt-5 text-xl font-medium max-w-lg leading-relaxed"
-          >
-            Find the perfect candidate by providing clear details about the position.
-          </motion.p>
         </div>
 
-        {/* Form Container */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className="relative group"
-        >
-          <div className="absolute -inset-[1px] bg-gradient-to-r from-transparent via-teal-500/50 to-transparent rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition duration-1000"></div>
-          
-          <div className="relative bg-white dark:bg-[#0B0F19] rounded-[2.5rem] border border-slate-200 dark:border-slate-800/80 p-8 md:p-14 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-none">
-            
-            {isSubmitting ? (
-              <div className="py-24 text-center space-y-6">
-                <div className="relative w-20 h-20 mx-auto">
-                   <div className="absolute inset-0 border-4 border-teal-500/20 rounded-full"></div>
-                   <div className="absolute inset-0 border-4 border-teal-500 border-t-transparent rounded-full animate-spin"></div>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-slate-900 dark:text-white font-black text-lg tracking-tight">Updating System...</p>
-                  <p className="text-slate-500 dark:text-slate-500 text-sm font-medium">Your job post is being processed.</p>
-                </div>
-              </div>
-            ) : (
-              <JobForm onSubmit={handleCreate} buttonText="Confirm & Post Job" />
-            )}
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3 }}>
+          <div className="bg-white dark:bg-[#0B0F19] rounded-[2.5rem] border border-slate-200 dark:border-slate-800/80 p-8 md:p-14 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-none">
+            <JobForm onSubmit={handleCreate} buttonText="Confirm & Post Job" isSubmitting={isSubmitting} />
           </div>
         </motion.div>
 
-        {/* Trust Badges */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           className="mt-16 pt-10 border-t border-slate-100 dark:border-slate-800/50 grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           {[
-            { icon: <ShieldCheck size={20} />, label: "Verified Post", desc: "Trusted by users" },
+            { icon: <ShieldCheck size={20} />, label: "Verified Post", desc: "Saved to database" },
             { icon: <Globe size={20} />, label: "Wide Reach", desc: "Available everywhere" },
-            { icon: <CheckCircle2 size={20} />, label: "Quick Setup", desc: "Simple and fast" }
+            { icon: <CheckCircle2 size={20} />, label: "Quick Setup", desc: "Simple and fast" },
           ].map((item, i) => (
             <div key={i} className="flex flex-col gap-2">
               <div className="text-teal-600 dark:text-teal-400 flex items-center gap-2 font-bold text-[10px] uppercase tracking-[0.2em]">
@@ -138,7 +94,6 @@ export default function AddJobPage() {
             </div>
           ))}
         </motion.div>
-
       </div>
     </div>
   );

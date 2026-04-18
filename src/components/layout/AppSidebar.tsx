@@ -9,7 +9,11 @@ import {
   IconBriefcase, 
   IconUserBolt,
   IconSettings,
-  IconLogout
+  IconLogout,
+  IconFileText,
+  IconUsers,
+  IconCode,
+  IconBuildingSkyscraper
 } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -29,6 +33,10 @@ export default function AppSidebar({ isOpen, setIsOpen }: AppSidebarProps) {
     { label: "Home", href: "/", icon: <IconHome className="h-5 w-5 flex-shrink-0" /> },
     { label: "Overview", href: "/overview", icon: <IconLayoutDashboard className="h-5 w-5 flex-shrink-0" /> },
     { label: "Hiring Hub", href: "/jobs", icon: <IconBriefcase className="h-5 w-5 flex-shrink-0" /> },
+    { label: "Candidates", href: "/candidates", icon: <IconUsers className="h-5 w-5 flex-shrink-0" /> },
+    { label: "Skills Library", href: "/skills", icon: <IconCode className="h-5 w-5 flex-shrink-0" /> },
+    { label: "Top Companies", href: "/recommendations", icon: <IconBuildingSkyscraper className="h-5 w-5 flex-shrink-0" /> },
+    { label: "Applications", href: "/applications", icon: <IconFileText className="h-5 w-5 flex-shrink-0" /> },
     { label: "Career DNA", href: "/profile", icon: <IconUserBolt className="h-5 w-5 flex-shrink-0" /> },
     { label: "Settings", href: "/settings", icon: <IconSettings className="h-5 w-5 flex-shrink-0" /> },
   ];

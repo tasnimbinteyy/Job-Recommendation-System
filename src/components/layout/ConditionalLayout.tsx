@@ -12,6 +12,10 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
     pathname.startsWith("/profile") ||
     pathname.startsWith("/settings") ||
     pathname.startsWith("/overview") ||
+    pathname.startsWith("/applications") ||
+    pathname.startsWith("/candidates") ||
+    pathname.startsWith("/skills") ||
+    pathname.startsWith("/recommendations") ||
     pathname.startsWith("/dashboard");
 
   return (

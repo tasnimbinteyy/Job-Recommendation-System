@@ -1,0 +1,56 @@
+import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import db from "@/lib/db";
+
+// GET /api/stats — dashboard overview stats
+export async function GET() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const [totalJobs, totalApplications, totalCandidates, applications] = await Promise.all([
+      db.job.count(),
+      db.application.count(),
+      db.user.count({ where: { role: "STUDENT" } }),
+      db.application.findMany({
+        select: { matchScore: true },
+        where: { matchScore: { not: null } },
+      }),
+    ]);
+
+    // Average match score
+    const avgMatchScore =
+      applications.length > 0
+        ? applications.reduce((sum, a) => sum + (a.matchScore ?? 0), 0) / applications.length
+        : 0;
+
+    // Top demanded skills from all jobs
+    const jobs = await db.job.findMany({ select: { requiredSkills: true } });
+    const skillFrequency: Record<string, number> = {};
+    jobs.forEach((job) => {
+      job.requiredSkills.forEach((skill) => {
+        const key = skill.toLowerCase();
+        skillFrequency[key] = (skillFrequency[key] ?? 0) + 1;
+      });
+    });
+    const topSkills = Object.entries(skillFrequency)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([skill, count]) => ({ skill, count }));
+
+    return NextResponse.json({
+      data: {
+        totalJobs,
+        totalApplications,
+        totalCandidates,
+        avgMatchScore: parseFloat(avgMatchScore.toFixed(1)),
+        topSkills,
+      },
+    });
+  } catch (error) {
+    console.error("[GET /api/stats]", error);
+    return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });
+  }
+}

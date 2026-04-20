@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Rocket, Info, ArrowRight } from "lucide-react";
@@ -70,17 +71,22 @@ export default function CTASection() {
           </div>
 
           <div className="flex flex-col gap-5 max-w-sm ml-auto w-full">
-            <Button className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn">
-              Launch Profile
-              <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />
+            <Button asChild className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn">
+              <Link href="/profile">
+                Launch Profile
+                <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />
+              </Link>
             </Button>
 
             <Button
+              asChild
               variant="outline"
               className="h-16 border-white/30 bg-white/10 dark:bg-white/5 text-white hover:bg-white/20 text-lg font-bold rounded-2xl transition-all flex items-center justify-between px-10 backdrop-blur-md"
             >
-              Learn More
-              <Info className="h-5 w-5 opacity-80" />
+              <Link href="/how-it-works">
+                Learn More
+                <Info className="h-5 w-5 opacity-80" />
+              </Link>
             </Button>
           </div>
         </div>

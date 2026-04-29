@@ -30,8 +30,7 @@ export default function RecommendationsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] transition-colors duration-500">
-      <div className="container mx-auto px-6 max-w-6xl pt-10 pb-20">
+    <div className="space-y-8 animate-in fade-in duration-500">
 
         {/* Header */}
         <div className="mb-12 border-b border-slate-200 dark:border-white/5 pb-10">
@@ -133,7 +132,6 @@ export default function RecommendationsPage() {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 }

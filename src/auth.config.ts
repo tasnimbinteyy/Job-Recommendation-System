@@ -17,5 +17,17 @@ export const authConfig: NextAuthConfig = {
     authorized({ auth }) {
       return !!auth?.user;
     },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = (token.dbId as string) ?? token.sub ?? "";
+        session.user.role = (token.role as "STUDENT" | "EMPLOYER" | "ADMIN") ?? "STUDENT";
+        session.user.onboarded = (token.onboarded as boolean) ?? false;
+      }
+      return session;
+    },
+    async jwt({ token }) {
+      // token already has role + onboarded + dbId from auth.ts jwt callback
+      return token;
+    },
   },
 }

@@ -10,11 +10,20 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // If employer — return applications for their posted jobs
-    const user = await db.user.findUnique({ where: { id: session.user.id }, select: { role: true } });
-    const isEmployer = user?.role === "EMPLOYER" || user?.role === "ADMIN";
+    // Use role from JWT token directly — no extra DB round-trip needed
+    if (session.user.role === "ADMIN") {
+      const applications = await db.application.findMany({
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: { select: { id: true, name: true, email: true, image: true, skills: true } },
+          job: { select: { id: true, title: true, companyName: true, requiredSkills: true } },
+        },
+      });
+      return NextResponse.json({ data: applications, role: "ADMIN" });
+    }
 
-    if (isEmployer) {
+    // If employer — return applications for their posted jobs
+    if (session.user.role === "EMPLOYER") {
       const applications = await db.application.findMany({
         where: { job: { employerId: session.user.id } },
         orderBy: { createdAt: "desc" },

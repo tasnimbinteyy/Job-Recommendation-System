@@ -4,41 +4,59 @@ import db from "@/lib/db";
 
 const VALID_STATUSES = ["PENDING", "IN_REVIEW", "ACCEPTED", "REJECTED"];
 
-// PATCH /api/applications/[id] — update application status (employer/admin only)
+const STATUS_MESSAGES: Record<string, { title: string; message: string }> = {
+  IN_REVIEW: {
+    title: "Application Under Review",
+    message: "Your application is being reviewed by the employer.",
+  },
+  ACCEPTED: {
+    title: "🎉 Application Accepted!",
+    message: "Congratulations! Your application has been accepted.",
+  },
+  REJECTED: {
+    title: "Application Update",
+    message: "Your application was not selected this time. Keep applying!",
+  },
+};
+
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { id } = await params;
-    const body = await req.json();
-    const { status } = body;
+    const { status } = await req.json();
 
     if (!status || !VALID_STATUSES.includes(status)) {
-      return NextResponse.json(
-        { error: `Status must be one of: ${VALID_STATUSES.join(", ")}` },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: `Status must be one of: ${VALID_STATUSES.join(", ")}` }, { status: 400 });
     }
 
     const application = await db.application.findUnique({
       where: { id },
-      include: { job: { select: { employerId: true } } },
+      include: { job: { select: { employerId: true, title: true, companyName: true } } },
     });
 
     if (!application) return NextResponse.json({ error: "Application not found" }, { status: 404 });
 
-    // only the job's employer can update status
-    if (application.job.employerId !== session.user.id) {
+    // Admin can update any application; employer can only update their own jobs'
+    if (session.user.role !== "ADMIN" && application.job.employerId !== session.user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const updated = await db.application.update({
-      where: { id },
-      data: { status },
-    });
+    const updated = await db.application.update({ where: { id }, data: { status } });
+
+    // Create notification for the student
+    const notifContent = STATUS_MESSAGES[status];
+    if (notifContent) {
+      await db.notification.create({
+        data: {
+          userId: application.userId,
+          title: notifContent.title,
+          message: `${notifContent.message} — ${application.job.title} at ${application.job.companyName}`,
+          link: "/applications",
+        },
+      });
+    }
 
     return NextResponse.json({ data: updated });
   } catch (error) {
@@ -47,21 +65,16 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-// DELETE /api/applications/[id] — withdraw application (applicant only)
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { id } = await params;
     const application = await db.application.findUnique({ where: { id } });
 
     if (!application) return NextResponse.json({ error: "Application not found" }, { status: 404 });
-    if (application.userId !== session.user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    if (application.userId !== session.user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     await db.application.delete({ where: { id } });
     return NextResponse.json({ data: { success: true } });

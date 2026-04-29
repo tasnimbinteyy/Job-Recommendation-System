@@ -92,8 +92,7 @@ export default function CandidatesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-200 transition-colors duration-500">
-      <div className="container mx-auto px-6 max-w-7xl pt-10 pb-20">
+    <div className="space-y-8 animate-in fade-in duration-500">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12 border-b border-slate-200 dark:border-white/5 pb-10">
@@ -352,7 +351,6 @@ export default function CandidatesPage() {
             </tbody>
           </table>
         </div>
-      </div>
     </div>
   );
 }

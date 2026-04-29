@@ -308,7 +308,8 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-4">
                     <div className="relative h-20 w-20 flex-shrink-0">
                       <svg className="h-full w-full -rotate-90">
-                        <circle cx="40" cy="40" r="34" fill="transparent" stroke="#ffffff08" strokeWidth="8" />
+                        <circle cx="40" cy="40" r="34" fill="transparent" stroke="#e2e8f0" strokeWidth="8"
+                  className="dark:[stroke:#ffffff08]" />
                         <circle cx="40" cy="40" r="34" fill="transparent" stroke="#14b8a6" strokeWidth="8"
                           strokeDasharray="214"
                           strokeDashoffset={214 - (214 * resumeScore.score) / 100}

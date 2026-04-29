@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import db from "@/lib/db";
 
-// GET /api/candidates — list all candidates (authenticated users only)
+// GET /api/candidates — list all candidates (EMPLOYER and ADMIN only)
 export async function GET() {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (session.user.role === "STUDENT") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const candidates = await db.user.findMany({

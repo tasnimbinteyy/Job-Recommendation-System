@@ -6,19 +6,55 @@ const { auth } = NextAuth(authConfig);
 export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const { nextUrl } = req;
+  const pathname = nextUrl.pathname;
+
+  const role = req.auth?.user?.role;
+  const onboarded = req.auth?.user?.onboarded;
+
+  // Admin-only routes
+  if (pathname.startsWith("/admin")) {
+    if (!isLoggedIn) return Response.redirect(new URL("/api/auth/signin", nextUrl));
+    if (role !== "ADMIN") return Response.redirect(new URL("/overview", nextUrl));
+    return;
+  }
+
+  // Already onboarded users trying to access /onboarding → redirect to dashboard
+  if (pathname === "/onboarding" && isLoggedIn && onboarded) {
+    const redirectTo = role === "EMPLOYER" ? "/jobs" : role === "ADMIN" ? "/admin" : "/overview";
+    return Response.redirect(new URL(redirectTo, nextUrl));
+  }
 
   const isProtectedRoute =
-    nextUrl.pathname.startsWith("/jobs") ||
-    nextUrl.pathname.startsWith("/overview") ||
-    nextUrl.pathname.startsWith("/profile") ||
-    nextUrl.pathname.startsWith("/settings") ||
-    nextUrl.pathname.startsWith("/applications") ||
-    nextUrl.pathname.startsWith("/candidates") ||
-    nextUrl.pathname.startsWith("/skills") ||
-    nextUrl.pathname.startsWith("/recommendations");
+    pathname.startsWith("/jobs") ||
+    pathname.startsWith("/overview") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/applications") ||
+    pathname.startsWith("/candidates") ||
+    pathname.startsWith("/skills") ||
+    pathname.startsWith("/recommendations") ||
+    pathname.startsWith("/saved");
 
   if (isProtectedRoute && !isLoggedIn) {
     return Response.redirect(new URL("/api/auth/signin", nextUrl));
+  }
+
+  // ADMIN — redirect to /admin if trying to access non-admin protected routes
+  if (isLoggedIn && role === "ADMIN" && isProtectedRoute) {
+    return Response.redirect(new URL("/admin", nextUrl));
+  }
+
+  // Redirect logged-in but not onboarded users to onboarding
+  // (skip if already on onboarding page or api routes)
+  if (
+    isLoggedIn &&
+    !onboarded &&
+    role !== "ADMIN" &&
+    !pathname.startsWith("/onboarding") &&
+    !pathname.startsWith("/api") &&
+    isProtectedRoute
+  ) {
+    return Response.redirect(new URL("/onboarding", nextUrl));
   }
 });
 
@@ -32,5 +68,8 @@ export const config = {
     "/candidates/:path*",
     "/skills/:path*",
     "/recommendations/:path*",
+    "/saved/:path*",
+    "/admin/:path*",
+    "/onboarding",
   ],
 };

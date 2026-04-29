@@ -10,21 +10,17 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const [totalJobs, totalApplications, totalCandidates, applications] = await Promise.all([
+    const [totalJobs, totalApplications, totalCandidates, avgResult] = await Promise.all([
       db.job.count(),
       db.application.count(),
       db.user.count({ where: { role: "STUDENT" } }),
-      db.application.findMany({
-        select: { matchScore: true },
+      db.application.aggregate({
+        _avg: { matchScore: true },
         where: { matchScore: { not: null } },
       }),
     ]);
 
-    // Average match score
-    const avgMatchScore =
-      applications.length > 0
-        ? applications.reduce((sum, a) => sum + (a.matchScore ?? 0), 0) / applications.length
-        : 0;
+    const avgMatchScore = avgResult._avg.matchScore ?? 0;
 
     // Top demanded skills from all jobs
     const jobs = await db.job.findMany({ select: { requiredSkills: true } });

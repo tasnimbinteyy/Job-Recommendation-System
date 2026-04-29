@@ -2,22 +2,31 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import db from "@/lib/db";
 
-// GET /api/jobs — fetch all jobs (public)
+// GET /api/jobs — fetch all jobs (public), or employer's own jobs
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search") || "";
+    const employerOnly = searchParams.get("employerOnly") === "true";
+
+    let employerId: string | undefined;
+    if (employerOnly) {
+      const session = await auth();
+      if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      employerId = session.user.id;
+    }
 
     const jobs = await db.job.findMany({
-      where: search
-        ? {
-            OR: [
-              { title: { contains: search, mode: "insensitive" } },
-              { companyName: { contains: search, mode: "insensitive" } },
-              { location: { contains: search, mode: "insensitive" } },
-            ],
-          }
-        : undefined,
+      where: {
+        ...(employerId ? { employerId } : {}),
+        ...(search ? {
+          OR: [
+            { title: { contains: search, mode: "insensitive" } },
+            { companyName: { contains: search, mode: "insensitive" } },
+            { location: { contains: search, mode: "insensitive" } },
+          ],
+        } : {}),
+      },
       orderBy: { createdAt: "desc" },
       include: {
         employer: { select: { name: true, image: true } },

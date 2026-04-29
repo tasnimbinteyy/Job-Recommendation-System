@@ -8,8 +8,11 @@ import { Plus, Edit, Trash2, Search, Briefcase, MapPin, Zap, Globe, Target, Load
 import { Input } from "@/components/ui/input";
 import type { Job } from "@/types";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 export default function JobsPage() {
+  const { data: session } = useSession();
+  const isEmployer = session?.user?.role === "EMPLOYER";
   const [jobs, setJobs] = useState<Job[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -18,7 +21,10 @@ export default function JobsPage() {
   const fetchJobs = useCallback(async (search = "") => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/jobs${search ? `?search=${encodeURIComponent(search)}` : ""}`);
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      if (isEmployer) params.set("employerOnly", "true");
+      const res = await fetch(`/api/jobs?${params.toString()}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to fetch");
       setJobs(json.data);
@@ -27,7 +33,7 @@ export default function JobsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isEmployer]);
 
   useEffect(() => {
     fetchJobs();
@@ -56,17 +62,16 @@ export default function JobsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] text-slate-900 dark:text-slate-200 transition-colors duration-500 font-sans">
-      <div className="container mx-auto px-6 max-w-7xl pt-10 pb-20">
+    <div className="space-y-8 animate-in fade-in duration-500">
 
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 mb-12 border-b border-slate-200 dark:border-white/5 pb-10">
           <div className="space-y-1 text-center md:text-left">
             <h1 className="text-4xl font-black tracking-tighter uppercase leading-none text-slate-900 dark:text-white">
-              Hiring <span className="text-teal-600 dark:text-teal-400 font-light">Hub</span>
+              {isEmployer ? "My" : "Hiring"} <span className="text-teal-600 dark:text-teal-400 font-light">{isEmployer ? "Jobs" : "Hub"}</span>
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm font-bold tracking-[0.1em] mt-2">
-              OVERVIEW: {jobs.length} ACTIVE POSITIONS
+              {isEmployer ? `YOUR POSTED JOBS: ${jobs.length}` : `OVERVIEW: ${jobs.length} ACTIVE POSITIONS`}
             </p>
           </div>
           <Link href="/jobs/add">
@@ -77,7 +82,7 @@ export default function JobsPage() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 mb-10 border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden bg-white dark:bg-[#0B0F19]/50 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-0 mb-10 border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden bg-white dark:bg-slate-900/50 shadow-sm">
           {[
             { label: "Total Openings", value: jobs.length, icon: <Briefcase size={16} /> },
             { label: "Total Applicants", value: jobs.reduce((a, j) => a + (j._count?.applications ?? 0), 0), icon: <Zap size={16} /> },
@@ -110,7 +115,7 @@ export default function JobsPage() {
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-[#0B0F19]/30 border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-xl overflow-x-auto">
+        <div className="bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-white/5 rounded-2xl overflow-hidden shadow-xl overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="bg-slate-50 dark:bg-black/20 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-white/5">
@@ -201,7 +206,6 @@ export default function JobsPage() {
             </tbody>
           </table>
         </div>
-      </div>
     </div>
   );
 }

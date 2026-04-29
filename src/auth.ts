@@ -10,58 +10,60 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
     }),
     GitHub({
       clientId: process.env.AUTH_GITHUB_ID,
       clientSecret: process.env.AUTH_GITHUB_SECRET,
-      allowDangerousEmailAccountLinking: true,
     }),
   ],
 
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
 
   callbacks: {
     async session({ session, token }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-      }
-      if (token.role && session.user) {
-        // @ts-ignore
-        session.user.role = token.role;
+      if (session.user) {
+        session.user.id = (token.dbId as string) ?? "";
+        session.user.role = (token.role as "STUDENT" | "EMPLOYER" | "ADMIN") ?? "STUDENT";
+        session.user.onboarded = (token.onboarded as boolean) ?? false;
       }
       return session;
     },
 
     async jwt({ token, user }) {
-      if (!token.sub) return token;
-
-      let dbUser = await db.user.findUnique({
-        where: { id: token.sub },
-      });
-
-      if (!dbUser && user?.email) {
-        dbUser = await db.user.upsert({
-          where: { email: user.email },
-          update: {},
-          create: {
-            id: token.sub,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-          },
-        });
+      // First sign-in — user object is present
+      if (user?.email) {
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { email: user.email },
+            select: { id: true, role: true, onboarded: true },
+          });
+          if (dbUser) {
+            token.dbId = dbUser.id;
+            token.role = dbUser.role;
+            token.onboarded = dbUser.onboarded;
+          }
+        } catch {}
+        return token;
       }
 
-      if (dbUser) {
-        token.role = dbUser.role;
+      // Always re-check DB on token refresh so role changes take effect
+      // without requiring the user to sign out
+      if (token.dbId) {
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.dbId as string },
+            select: { role: true, onboarded: true },
+          });
+          if (dbUser) {
+            token.role = dbUser.role;
+            token.onboarded = dbUser.onboarded;
+          }
+        } catch {}
       }
 
       return token;
     },
   },
 
-  debug: process.env.NODE_ENV === "development",
+  debug: false,
 })

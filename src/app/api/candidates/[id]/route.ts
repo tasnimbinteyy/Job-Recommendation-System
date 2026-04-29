@@ -58,7 +58,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     const body = await req.json();
-    const { skills, experience } = body;
+    const { skills, experience, name } = body;
 
     const parsedSkills = Array.isArray(skills)
       ? skills.map((s: string) => s.trim()).filter(Boolean)
@@ -71,6 +71,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       data: {
         ...(parsedSkills !== undefined && { skills: parsedSkills }),
         ...(experience !== undefined && { experience: experience.trim() || null }),
+        ...(name !== undefined && { name: name.trim() || null }),
       },
       select: { id: true, name: true, skills: true, experience: true },
     });

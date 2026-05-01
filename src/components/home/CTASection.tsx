@@ -1,18 +1,52 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Rocket, Info, ArrowRight } from "lucide-react";
+import { Rocket, Info, ArrowRight, Loader2, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function CTASection() {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+  const { data: session } = useSession();
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploaded, setUploaded] = useState(false);
+
+  const isStudent = session?.user?.role === "STUDENT";
 
   function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
     let { left, top } = currentTarget.getBoundingClientRect();
     mouseX.set(clientX - left);
     mouseY.set(clientY - top);
+  }
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") { toast.error("Only PDF files are accepted."); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("File size must be under 5MB."); return; }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("cv", file);
+      const res = await fetch("/api/cv-upload", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Upload failed");
+      setUploaded(true);
+      toast.success(`CV processed! Found ${json.extracted.skills.length} skills. Profile updated.`, { duration: 5000 });
+      setTimeout(() => router.push("/profile"), 1500);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to process CV");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
   return (
@@ -71,12 +105,26 @@ export default function CTASection() {
           </div>
 
           <div className="flex flex-col gap-5 max-w-sm ml-auto w-full">
-            <Button asChild className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn">
-              <Link href="/profile">
-                Launch Profile
-                <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />
-              </Link>
-            </Button>
+            {isStudent ? (
+              <>
+                <input ref={fileInputRef} type="file" accept="application/pdf" className="hidden" onChange={handleFileChange} />
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading || uploaded}
+                  className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn disabled:opacity-80"
+                >
+                  {uploading ? "Extracting CV..." : uploaded ? "Profile Updated!" : "Upload CV"}
+                  {uploading ? <Loader2 className="h-6 w-6 animate-spin" /> : uploaded ? <CheckCircle className="h-6 w-6" /> : <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />}
+                </Button>
+              </>
+            ) : (
+              <Button asChild className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn">
+                <Link href="/profile">
+                  Launch Profile
+                  <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />
+                </Link>
+              </Button>
+            )}
 
             <Button
               asChild

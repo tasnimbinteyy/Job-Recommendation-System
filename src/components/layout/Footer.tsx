@@ -6,7 +6,7 @@ import Link from "next/link";
 
 // --- Premium Components ---
 
-function SocialIcon({ icon: Icon }: { icon: any }) {
+function SocialIcon({ icon: Icon, href, external = true }: { icon: any; href: string; external?: boolean }) {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -27,7 +27,9 @@ function SocialIcon({ icon: Icon }: { icon: any }) {
 
   return (
     <motion.a
-      href="#"
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       style={{ x, y }}
@@ -38,10 +40,10 @@ function SocialIcon({ icon: Icon }: { icon: any }) {
   );
 }
 
-function FooterLink({ children }: { children: string }) {
+function FooterLink({ children, href }: { children: string; href: string }) {
   return (
     <motion.li whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
-      <Link href="#" className="flex items-center group text-slate-600 dark:text-slate-400 hover:text-teal-500 dark:hover:text-teal-400 font-medium text-sm transition-colors">
+      <Link href={href} className="flex items-center group text-slate-600 dark:text-slate-400 hover:text-teal-500 dark:hover:text-teal-400 font-medium text-sm transition-colors">
         <span className="h-1 w-1 rounded-full bg-teal-500 scale-0 group-hover:scale-100 transition-transform mr-2" />
         {children}
       </Link>
@@ -94,16 +96,37 @@ export default function Footer() {
               Next-gen job matching powered by proprietary neural architectures and strategic AI insights.
             </p>
             <div className="flex gap-3">
-              {[Github, Linkedin, Twitter, Mail].map((Icon, i) => (
-                <SocialIcon key={i} icon={Icon} />
+              {[
+                { icon: Github, href: "https://github.com", external: true },
+                { icon: Linkedin, href: "https://linkedin.com/in/tasnimbinteyy", external: true },
+                { icon: Twitter, href: "https://twitter.com/tasnimbinteyy", external: true },
+                { icon: Mail, href: "https://mail.google.com", external: true },
+              ].map(({ icon, href, external }, i) => (
+                <SocialIcon key={i} icon={icon} href={href} external={external} />
               ))}
             </div>
           </div>
 
           {/* Column 2 & 3: Links */}
           {[
-            { title: "Platform", links: ["Browse Jobs", "Smart Companies", "AI Matchmaking", "Salary Insights"] },
-            { title: "Resources", links: ["Career Guide", "Resume Optimizer", "Interview Bot", "Documentation"] }
+            {
+              title: "Platform",
+              links: [
+                { label: "Browse Jobs", href: "/browse" },
+                { label: "Smart Companies", href: "/companies" },
+                { label: "AI Matchmaking", href: "/how-it-works#cosine" },
+                { label: "Salary Insights", href: "/browse" },
+              ]
+            },
+            {
+              title: "Resources",
+              links: [
+                { label: "Career Guide", href: "/how-it-works" },
+                { label: "Resume Optimizer", href: "/profile" },
+                { label: "How It Works", href: "/how-it-works" },
+                { label: "About", href: "/about" },
+              ]
+            }
           ].map((section) => (
             <div key={section.title}>
               <h4 className="text-slate-900 dark:text-white font-bold mb-6 uppercase tracking-[0.3em] text-[10px] opacity-70">
@@ -111,7 +134,7 @@ export default function Footer() {
               </h4>
               <ul className="space-y-4">
                 {section.links.map((link) => (
-                  <FooterLink key={link}>{link}</FooterLink>
+                  <FooterLink key={link.label} href={link.href}>{link.label}</FooterLink>
                 ))}
               </ul>
             </div>
@@ -151,11 +174,15 @@ export default function Footer() {
           </div>
 
           <div className="flex gap-8 text-[10px] font-bold uppercase tracking-[0.2em]">
-            {["Privacy", "Terms", "Cookies"].map((legal) => (
-              <a key={legal} href="#" className="text-slate-500 hover:text-teal-500 transition-colors relative group">
-                {legal}
+            {[
+              { label: "Privacy", href: "/about" },
+              { label: "Terms", href: "/about" },
+              { label: "How It Works", href: "/how-it-works" },
+            ].map(({ label, href }) => (
+              <Link key={label} href={href} className="text-slate-500 hover:text-teal-500 transition-colors relative group">
+                {label}
                 <span className="absolute -bottom-1 left-0 w-0 h-px bg-teal-500 transition-all group-hover:w-full" />
-              </a>
+              </Link>
             ))}
           </div>
         </div>

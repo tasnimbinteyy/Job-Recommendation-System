@@ -314,6 +314,8 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brain, Target, Zap, Shield, Sparkles, ArrowUpRight } from "lucide-react";
 
@@ -323,28 +325,51 @@ const features = [
     description: "Our proprietary neural engine decodes your career DNA to find roles where you'll truly excel.",
     icon: Brain,
     accent: "group-hover:text-teal-500",
+    href: (role: string | undefined, loggedIn: boolean) => {
+      if (!loggedIn) return "/browse";
+      if (role === "EMPLOYER") return "/jobs";       // employer manages their jobs
+      if (role === "ADMIN") return "/admin";          // admin sees system overview
+      return "/browse";                               // student browses with AI scores
+    },
   },
   {
     title: "Strategic Suggestions",
     description: "Personalized career roadmaps designed to bridge the gap between your skills and goals.",
     icon: Target,
     accent: "group-hover:text-blue-500",
+    href: (role: string | undefined, loggedIn: boolean) => {
+      if (!loggedIn) return "/companies";
+      if (role === "EMPLOYER") return "/candidates";  // employer sees candidate pool
+      if (role === "ADMIN") return "/admin/users";    // admin sees all users
+      return "/recommendations";                      // student sees personalized company recs
+    },
   },
   {
     title: "Instant DNA Analysis",
     description: "Real-time resume scoring and skill-gap audits to keep you ahead of the hiring curve.",
     icon: Zap,
     accent: "group-hover:text-amber-500",
+    href: (role: string | undefined, loggedIn: boolean) => {
+      if (!loggedIn) return "/how-it-works#resume";
+      if (role === "EMPLOYER") return "/how-it-works#cosine"; // employer sees matching algorithm
+      if (role === "ADMIN") return "/admin/applications";     // admin sees all applications & scores
+      return "/profile";                                      // student sees their live resume score
+    },
   },
   {
     title: "Stealth Mode Privacy",
     description: "Bank-grade encryption ensures your data remains invisible until you decide to reveal it.",
     icon: Shield,
     accent: "group-hover:text-emerald-500",
+    href: (_role: string | undefined, _loggedIn: boolean) => "/how-it-works#profile",
   },
 ];
 
 export default function FeaturesSection() {
+  const { data: session } = useSession();
+  const loggedIn = !!session?.user;
+  const role = session?.user?.role;
+
   return (
     <section className="relative px-6 py-32 bg-slate-50 dark:bg-[#020617] transition-colors duration-500 overflow-hidden">
       {/* --- Background Accents --- */}
@@ -378,6 +403,7 @@ export default function FeaturesSection() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, idx) => {
             const Icon = feature.icon;
+            const destination = feature.href(role, loggedIn);
             return (
               <Card
                 key={idx}
@@ -392,7 +418,6 @@ export default function FeaturesSection() {
                     <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/10 text-slate-400 group-hover:scale-110 group-hover:border-teal-500/50 transition-all duration-500 shadow-sm">
                       <Icon className={`h-7 w-7 transition-colors duration-500 ${feature.accent}`} />
                     </div>
-                    {/* Floating ambient light */}
                     <div className="absolute -top-6 -left-6 h-20 w-20 bg-teal-500/10 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                   </div>
 
@@ -405,10 +430,15 @@ export default function FeaturesSection() {
                     </p>
                   </div>
 
-                  {/* Aesthetic Footer Link */}
-                  <div className="mt-auto pt-8 flex items-center gap-2 text-teal-600 dark:text-teal-500 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Explore System</span>
-                    <ArrowUpRight className="h-4 w-4" />
+                  {/* Explore System Link — now a real navigation link */}
+                  <div className="mt-auto pt-8">
+                    <Link
+                      href={destination}
+                      className="inline-flex items-center gap-2 text-teal-600 dark:text-teal-500 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 hover:gap-3"
+                    >
+                      <span className="text-[10px] font-black uppercase tracking-[0.2em]">Explore System</span>
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconBriefcase, IconUsers, IconTarget, IconTrendingUp, IconRobot, IconFileText } from "@tabler/icons-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+
+const BarChart = lazy(() => import("recharts").then(m => ({ default: m.BarChart })));
+const Bar = lazy(() => import("recharts").then(m => ({ default: m.Bar })));
+const XAxis = lazy(() => import("recharts").then(m => ({ default: m.XAxis })));
+const YAxis = lazy(() => import("recharts").then(m => ({ default: m.YAxis })));
+const CartesianGrid = lazy(() => import("recharts").then(m => ({ default: m.CartesianGrid })));
+const Tooltip = lazy(() => import("recharts").then(m => ({ default: m.Tooltip })));
+const ResponsiveContainer = lazy(() => import("recharts").then(m => ({ default: m.ResponsiveContainer })));
 
 interface Stats {
   totalJobs: number;
@@ -23,6 +30,7 @@ export default function OverviewPage() {
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [myStats, setMyStats] = useState<{ applications: number; savedJobs: number; matchScore: number } | null>(null);
+  const [employerStats, setEmployerStats] = useState<{ myJobs: number; myApplicants: number; avgMatch: number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,12 +45,20 @@ export default function OverviewPage() {
             ])
           );
         }
-        const [statsRes, studentData] = await Promise.all(promises);
+        if (role === "EMPLOYER") {
+          promises.push(
+            Promise.all([
+              fetch("/api/jobs?employerOnly=true").then((r) => r.json()),
+              fetch("/api/applications").then((r) => r.json()),
+            ])
+          );
+        }
+        const [statsRes, roleData] = await Promise.all(promises);
         if (statsRes.error) throw new Error(statsRes.error);
         setStats(statsRes.data);
 
-        if (studentData) {
-          const [appsRes, savedRes] = studentData;
+        if (role === "STUDENT" && roleData) {
+          const [appsRes, savedRes] = roleData;
           const apps = appsRes?.data ?? [];
           const avgMatch = apps.length > 0
             ? apps.reduce((sum: number, a: any) => sum + (a.matchScore ?? 0), 0) / apps.length
@@ -51,6 +67,20 @@ export default function OverviewPage() {
             applications: apps.length,
             savedJobs: savedRes?.data?.length ?? 0,
             matchScore: Math.round(avgMatch),
+          });
+        }
+
+        if (role === "EMPLOYER" && roleData) {
+          const [jobsRes, appsRes] = roleData;
+          const myJobs = jobsRes?.data ?? [];
+          const myApps = appsRes?.data ?? [];
+          const avgMatch = myApps.length > 0
+            ? myApps.reduce((sum: number, a: any) => sum + (a.matchScore ?? 0), 0) / myApps.length
+            : 0;
+          setEmployerStats({
+            myJobs: myJobs.length,
+            myApplicants: myApps.length,
+            avgMatch: Math.round(avgMatch),
           });
         }
       } catch (err: any) {
@@ -79,10 +109,10 @@ export default function OverviewPage() {
   ];
 
   const employerCards = [
-    { title: "My Job Postings", value: stats?.totalJobs ?? 0, icon: <IconBriefcase />, color: "text-teal-500", bg: "bg-teal-500/10", href: "/jobs" },
-    { title: "Total Applicants", value: stats?.totalApplications ?? 0, icon: <IconFileText />, color: "text-blue-500", bg: "bg-blue-500/10", href: "/applications" },
+    { title: "My Job Postings", value: employerStats?.myJobs ?? 0, icon: <IconBriefcase />, color: "text-teal-500", bg: "bg-teal-500/10", href: "/jobs" },
+    { title: "My Applicants", value: employerStats?.myApplicants ?? 0, icon: <IconFileText />, color: "text-blue-500", bg: "bg-blue-500/10", href: "/applications" },
     { title: "Candidates Pool", value: stats?.totalCandidates ?? 0, icon: <IconUsers />, color: "text-emerald-500", bg: "bg-emerald-500/10", href: "/candidates" },
-    { title: "Avg Match Score", value: `${stats?.avgMatchScore ?? 0}%`, icon: <IconRobot />, color: "text-purple-500", bg: "bg-purple-500/10", href: "/candidates" },
+    { title: "Avg Match Score", value: `${employerStats?.avgMatch ?? 0}%`, icon: <IconRobot />, color: "text-purple-500", bg: "bg-purple-500/10", href: "/candidates" },
   ];
 
   const statCards = role === "EMPLOYER" ? employerCards : studentCards;
@@ -131,6 +161,7 @@ export default function OverviewPage() {
           <CardContent>
             {stats?.topSkills && stats.topSkills.length > 0 ? (
               <div className="h-[240px] w-full pt-2">
+                <Suspense fallback={<div className="h-[240px] flex items-center justify-center"><Loader2 className="animate-spin text-teal-500" size={24} /></div>}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.topSkills} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#94a3b820" horizontal={false} />
@@ -157,6 +188,7 @@ export default function OverviewPage() {
                     <Bar dataKey="count" fill="#14b8a6" radius={[0, 6, 6, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
+                </Suspense>
               </div>
             ) : (
               <div className="h-[240px] flex items-center justify-center text-slate-400 text-sm">
@@ -199,7 +231,7 @@ export default function OverviewPage() {
 
             <div className="mt-6 space-y-2 w-full">
               {[
-                { label: role === "EMPLOYER" ? "Total Applications" : "My Applications", value: role === "EMPLOYER" ? stats?.totalApplications ?? 0 : myStats?.applications ?? 0, color: "text-teal-500" },
+                { label: role === "EMPLOYER" ? "My Applicants" : "My Applications", value: role === "EMPLOYER" ? employerStats?.myApplicants ?? 0 : myStats?.applications ?? 0, color: "text-teal-500" },
                 { label: role === "EMPLOYER" ? "Active Candidates" : "Saved Jobs", value: role === "EMPLOYER" ? stats?.totalCandidates ?? 0 : myStats?.savedJobs ?? 0, color: "text-blue-500" },
               ].map((item, i) => (
                 <div key={i} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/5">

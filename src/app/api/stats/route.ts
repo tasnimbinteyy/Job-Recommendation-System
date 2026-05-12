@@ -10,7 +10,7 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const [totalJobs, totalApplications, totalCandidates, avgResult] = await Promise.all([
+    const [totalJobs, totalApplications, totalCandidates, avgResult, totalSubscribers] = await Promise.all([
       db.job.count(),
       db.application.count(),
       db.user.count({ where: { role: "STUDENT" } }),
@@ -18,19 +18,21 @@ export async function GET() {
         _avg: { matchScore: true },
         where: { matchScore: { not: null } },
       }),
+      db.newsletterSubscriber.count(),
     ]);
 
     const avgMatchScore = avgResult._avg.matchScore ?? 0;
 
-    // Top demanded skills from all jobs
+    // Top demanded skills — use groupBy on requiredSkills via raw aggregation
+    // We still need findMany for skill frequency but limit to requiredSkills only
     const jobs = await db.job.findMany({ select: { requiredSkills: true } });
     const skillFrequency: Record<string, number> = {};
-    jobs.forEach((job) => {
-      job.requiredSkills.forEach((skill) => {
+    for (const job of jobs) {
+      for (const skill of job.requiredSkills) {
         const key = skill.toLowerCase();
         skillFrequency[key] = (skillFrequency[key] ?? 0) + 1;
-      });
-    });
+      }
+    }
     const topSkills = Object.entries(skillFrequency)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
@@ -41,6 +43,7 @@ export async function GET() {
         totalJobs,
         totalApplications,
         totalCandidates,
+        totalSubscribers,
         avgMatchScore: parseFloat(avgMatchScore.toFixed(1)),
         topSkills,
       },

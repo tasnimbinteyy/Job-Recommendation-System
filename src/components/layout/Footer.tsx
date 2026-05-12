@@ -1,8 +1,10 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useMotionTemplate } from "framer-motion";
-import { Github, Linkedin, Mail, Briefcase, Twitter, ExternalLink } from "lucide-react";
+import { Github, Linkedin, Mail, Briefcase, Twitter, ArrowRight, Check, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { toast } from "sonner";
 
 // --- Premium Components ---
 
@@ -48,6 +50,78 @@ function FooterLink({ children, href }: { children: string; href: string }) {
         {children}
       </Link>
     </motion.li>
+  );
+}
+
+function NewsletterCard() {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = async () => {
+    const trimmed = email.trim();
+    if (!trimmed) { toast.error("Please enter your email address."); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) { toast.error("Please enter a valid email address."); return; }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to subscribe");
+      setSubmitted(true);
+      toast.success("You're on the list! We'll be in touch.");
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="group relative p-8 rounded-[32px] bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 shadow-sm backdrop-blur-xl overflow-hidden"
+    >
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-24 h-24 bg-teal-500/10 blur-[40px] rounded-full" />
+      <h4 className="text-slate-900 dark:text-white font-bold mb-2 text-sm tracking-tight">Join the Elite</h4>
+      <p className="text-slate-500 dark:text-slate-400 text-[11px] mb-6 leading-relaxed font-medium">
+        Get high-affinity opportunities directly in your neural feed.
+      </p>
+
+      {submitted ? (
+        <div className="flex items-center gap-3 h-12 px-4 rounded-2xl bg-teal-500/10 border border-teal-500/20">
+          <div className="h-6 w-6 rounded-full bg-teal-500 flex items-center justify-center flex-shrink-0">
+            <Check size={13} className="text-white" />
+          </div>
+          <p className="text-xs font-bold text-teal-600 dark:text-teal-400">You&apos;re on the list!</p>
+        </div>
+      ) : (
+        <div className="relative">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            placeholder="Email address"
+            disabled={loading}
+            className="w-full h-12 bg-slate-100 dark:bg-slate-900/50 border border-transparent focus:border-teal-500/30 rounded-2xl px-4 pr-14 text-xs transition-all outline-none text-slate-900 dark:text-white font-medium disabled:opacity-60"
+          />
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSubmit}
+            disabled={loading}
+            className="absolute right-1.5 top-1.5 h-9 w-9 bg-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/20 hover:bg-teal-600 transition-colors disabled:opacity-60"
+          >
+            {loading ? <Loader2 size={14} className="animate-spin" /> : <ArrowRight size={14} />}
+          </motion.button>
+        </div>
+      )}
+    </motion.div>
   );
 }
 
@@ -141,30 +215,7 @@ export default function Footer() {
           ))}
 
           {/* Column 4: Newsletter Card */}
-          <motion.div 
-            whileHover={{ y: -5 }}
-            className="group relative p-8 rounded-[32px] bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 shadow-sm backdrop-blur-xl overflow-hidden"
-          >
-            <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-24 h-24 bg-teal-500/10 blur-[40px] rounded-full" />
-            <h4 className="text-slate-900 dark:text-white font-bold mb-2 text-sm tracking-tight">Join the Elite</h4>
-            <p className="text-slate-500 dark:text-slate-400 text-[11px] mb-6 leading-relaxed font-medium">
-              Get high-affinity opportunities directly in your neural feed.
-            </p>
-            <div className="relative group/input">
-              <input
-                type="email"
-                placeholder="Email address"
-                className="w-full h-12 bg-slate-100 dark:bg-slate-900/50 border border-transparent focus:border-teal-500/30 rounded-2xl px-4 text-xs transition-all outline-none text-slate-900 dark:text-white font-medium"
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="absolute right-1.5 top-1.5 h-9 w-9 bg-teal-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-teal-500/20 hover:bg-teal-600 transition-colors"
-              >
-                <ExternalLink size={14} />
-              </motion.button>
-            </div>
-          </motion.div>
+          <NewsletterCard />
         </div>
 
         {/* Bottom Bar */}

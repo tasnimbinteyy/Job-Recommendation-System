@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   Search,
@@ -35,7 +35,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { y: 30, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.6 } },
 };
 
 export default function CompaniesPage() {
@@ -43,6 +43,8 @@ export default function CompaniesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("Most Open Jobs");
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch("/api/companies")
@@ -90,14 +92,18 @@ export default function CompaniesPage() {
             <div className="relative flex-1 flex items-center">
               <Search className="absolute left-5 text-slate-400" size={20} />
               <input
+                ref={inputRef}
                 type="text"
                 placeholder="Search company or location..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && document.getElementById("results")?.scrollIntoView({ behavior: "smooth" })}
                 className="w-full bg-transparent py-4 pl-14 pr-4 focus:outline-none font-bold text-sm"
               />
             </div>
-            <Button className="h-14 px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-950 rounded-2xl font-black transition-all hover:scale-105 active:scale-95 shadow-xl">
+            <Button
+              onClick={() => document.getElementById("results")?.scrollIntoView({ behavior: "smooth" })}
+              className="h-14 px-10 bg-slate-900 dark:bg-white text-white dark:text-slate-950 rounded-2xl font-black transition-all hover:scale-105 active:scale-95 shadow-xl">
               Explore
             </Button>
           </div>
@@ -106,7 +112,7 @@ export default function CompaniesPage() {
 
       {/* GRID */}
       <div className="max-w-7xl mx-auto px-6 pb-40">
-        <div className="flex justify-between items-end mb-12 border-b border-slate-100 dark:border-white/5 pb-8">
+        <div id="results" className="flex justify-between items-end mb-12 border-b border-slate-100 dark:border-white/5 pb-8">
           <h2 className="text-3xl font-black tracking-tight">
             Top Picks{" "}
             {!loading && (

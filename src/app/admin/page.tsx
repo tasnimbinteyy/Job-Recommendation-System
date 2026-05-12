@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Users, Briefcase, FileText, TrendingUp, ShieldCheck, Loader2 } from "lucide-react";
+import { Users, Briefcase, FileText, TrendingUp, ShieldCheck, Loader2, Mail } from "lucide-react";
 
 type Stats = {
   totalJobs: number;
   totalApplications: number;
   totalCandidates: number;
+  totalSubscribers: number;
   avgMatchScore: number;
 };
 
@@ -32,6 +33,7 @@ export default function AdminDashboard() {
         { label: "Total Applications", value: stats.totalApplications, icon: FileText, color: "text-teal-500", bg: "bg-teal-500/10" },
         { label: "Total Candidates", value: stats.totalCandidates, icon: Users, color: "text-purple-500", bg: "bg-purple-500/10" },
         { label: "Avg Match Score", value: `${stats.avgMatchScore}%`, icon: TrendingUp, color: "text-orange-500", bg: "bg-orange-500/10" },
+        { label: "Newsletter Subscribers", value: stats.totalSubscribers, icon: Mail, color: "text-rose-500", bg: "bg-rose-500/10" },
       ]
     : [];
 
@@ -54,7 +56,7 @@ export default function AdminDashboard() {
       ) : error ? (
         <div className="py-16 text-center text-red-400 font-semibold">Failed to load stats. Please refresh.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
           {cards.map((card) => {
             const Icon = card.icon;
             return (

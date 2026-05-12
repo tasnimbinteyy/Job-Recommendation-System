@@ -33,7 +33,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const existing = await db.job.findUnique({ where: { id } });
     if (!existing) return NextResponse.json({ error: "Job not found" }, { status: 404 });
-    if (existing.employerId !== session.user.id) {
+    if (existing.employerId !== session.user.id && session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
@@ -76,7 +76,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
     const { id } = await params;
     const existing = await db.job.findUnique({ where: { id } });
     if (!existing) return NextResponse.json({ error: "Job not found" }, { status: 404 });
-    if (existing.employerId !== session.user.id) {
+    if (existing.employerId !== session.user.id && session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

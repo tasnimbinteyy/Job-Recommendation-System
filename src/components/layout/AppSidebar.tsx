@@ -70,7 +70,7 @@ export default function AppSidebar({ isOpen, setIsOpen }: AppSidebarProps) {
 
   return (
     <div className={cn("h-screen flex flex-col md:flex-row transition-colors duration-300", "bg-slate-50 dark:bg-[#020617]")}>
-      <Sidebar open={isOpen} setOpen={setIsOpen} animate={false}>
+      <Sidebar>
         <SidebarBody className={cn(
           "justify-between gap-10",
           "bg-white dark:bg-[#020617] border-r border-slate-200 dark:border-white/5",

@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import db from "@/lib/db";
 
 // GET /api/candidates — list all candidates (EMPLOYER and ADMIN only)
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -14,8 +14,20 @@ export async function GET() {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const { searchParams } = new URL(req.url);
+    const search = searchParams.get("search")?.trim() || "";
+
     const candidates = await db.user.findMany({
-      where: { role: "STUDENT" },
+      where: {
+        role: "STUDENT",
+        ...(search ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { email: { contains: search, mode: "insensitive" } },
+            { skills: { has: search } },
+          ],
+        } : {}),
+      },
       select: {
         id: true,
         name: true,

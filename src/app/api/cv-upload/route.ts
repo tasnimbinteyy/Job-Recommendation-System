@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import db from "@/lib/db";
-import { PDFParse } from "pdf-parse";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse = require("pdf-parse");
 
 export const runtime = "nodejs";
 
@@ -70,11 +71,9 @@ export async function POST(req: NextRequest) {
     if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: "File size must be under 5MB" }, { status: 400 });
 
     const arrayBuffer = await file.arrayBuffer();
-    const data = new Uint8Array(arrayBuffer);
+    const buffer = Buffer.from(arrayBuffer);
 
-    // pdf-parse v2 class-based API
-    const parser = new PDFParse({ data });
-    const result = await parser.getText();
+    const result = await pdfParse(buffer);
     const text = result.text;
 
     if (!text || text.trim().length < 30) {
@@ -101,8 +100,6 @@ export async function POST(req: NextRequest) {
         ...(extractedExperience && { experience: extractedExperience }),
       },
     });
-
-    await parser.destroy();
 
     return NextResponse.json({
       success: true,

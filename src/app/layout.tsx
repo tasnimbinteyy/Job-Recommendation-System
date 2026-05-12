@@ -17,8 +17,29 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Job Recommendation System",
-  description: "Personalized employment matching system",
+  title: {
+    default: "JobAI — AI-Powered Job Matching",
+    template: "%s | JobAI",
+  },
+  description: "JobAI uses Cosine Similarity AI to match candidates with jobs, identify skill gaps, and recommend top companies — personalized for every professional.",
+  keywords: ["job matching", "AI recruitment", "skill gap analysis", "resume scoring", "job recommendations"],
+  authors: [{ name: "Tasnim Bintey Nayeem" }],
+  openGraph: {
+    title: "JobAI — AI-Powered Job Matching",
+    description: "Stop hunting. Start being hunted. AI-powered career matching for job seekers and employers.",
+    type: "website",
+    url: "https://job-recommendation-system-delta.vercel.app",
+    siteName: "JobAI",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JobAI — AI-Powered Job Matching",
+    description: "Stop hunting. Start being hunted. AI-powered career matching.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({

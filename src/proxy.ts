@@ -39,9 +39,19 @@ export default auth((req) => {
     return Response.redirect(new URL("/api/auth/signin", nextUrl));
   }
 
-  // ADMIN — redirect to /admin if trying to access non-admin protected routes
+  // ADMIN — redirect to /admin only if they try to access non-admin protected routes
+  // (but allow /jobs, /applications, /candidates, /skills, /settings for admin use)
   if (isLoggedIn && role === "ADMIN" && isProtectedRoute) {
-    return Response.redirect(new URL("/admin", nextUrl));
+    const adminAllowed =
+      pathname.startsWith("/jobs") ||
+      pathname.startsWith("/applications") ||
+      pathname.startsWith("/candidates") ||
+      pathname.startsWith("/skills") ||
+      pathname.startsWith("/settings");
+    if (!adminAllowed) {
+      return Response.redirect(new URL("/admin", nextUrl));
+    }
+    return;
   }
 
   // Redirect logged-in but not onboarded users to onboarding

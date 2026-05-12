@@ -63,10 +63,6 @@ export default function SettingsPage() {
   const [companyInfo, setCompanyInfo] = useState("");
   const [savingCompany, setSavingCompany] = useState(false);
 
-  // Privacy (Student only)
-  const [profilePublic, setProfilePublic] = useState(true);
-  const [showScore, setShowScore] = useState(true);
-
   // Danger zone
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
@@ -466,34 +462,25 @@ export default function SettingsPage() {
                   <Eye size={16} className="text-teal-500" /> Privacy Preferences
                 </CardTitle>
               </CardHeader>
-              <CardContent className="divide-y divide-slate-100 dark:divide-white/5">
+              <CardContent className="space-y-4">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Coming Soon</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Granular privacy controls (public profile, resume score visibility) are planned for a future update.
+                  </p>
+                </div>
                 {[
-                  {
-                    label: "Public Profile",
-                    desc: "Allow employers to view your profile and skills in the candidates list.",
-                    value: profilePublic,
-                    onChange: (v: boolean) => { setProfilePublic(v); toast.success(v ? "Profile set to public" : "Profile set to private"); },
-                  },
-                  {
-                    label: "Show Resume Score",
-                    desc: "Display your AI resume score on your public profile.",
-                    value: showScore,
-                    onChange: (v: boolean) => { setShowScore(v); toast.success(v ? "Resume score visible" : "Resume score hidden"); },
-                  },
+                  { label: "Public Profile", desc: "Allow employers to view your profile and skills in the candidates list." },
+                  { label: "Show Resume Score", desc: "Display your AI resume score on your public profile." },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-5">
+                  <div key={i} className="flex items-center justify-between py-4 border-t border-slate-100 dark:border-white/5 opacity-40 cursor-not-allowed">
                     <div className="space-y-0.5 pr-8">
                       <p className="text-sm font-bold text-slate-900 dark:text-white">{item.label}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
                     </div>
-                    <Switch checked={item.value} onCheckedChange={item.onChange} />
+                    <Switch disabled checked={false} />
                   </div>
                 ))}
-                <div className="pt-4">
-                  <p className="text-xs text-slate-400">
-                    Privacy settings are saved locally for this session.
-                  </p>
-                </div>
               </CardContent>
             </Card>
           )}

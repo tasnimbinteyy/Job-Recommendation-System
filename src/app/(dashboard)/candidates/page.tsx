@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Search, Users, Briefcase, ChevronDown, ChevronUp, Loader2, Edit2, Check, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -164,9 +164,8 @@ export default function CandidatesPage() {
                 </tr>
               ) : (
                 filtered.map((candidate) => (
-                  <>
+                  <React.Fragment key={candidate.id}>
                     <tr
-                      key={candidate.id}
                       className="group hover:bg-teal-50 dark:hover:bg-teal-500/5 transition-all"
                     >
                       {/* Candidate Info */}
@@ -276,7 +275,7 @@ export default function CandidatesPage() {
 
                     {/* Expanded Row — Skill Gap Analysis */}
                     {expandedId === candidate.id && (
-                      <tr key={`${candidate.id}-expanded`} className="bg-slate-50 dark:bg-black/10">
+                      <tr className="bg-slate-50 dark:bg-black/10">
                         <td colSpan={4} className="px-8 py-6">
                           {expandLoading ? (
                             <div className="flex justify-center py-4">
@@ -345,7 +344,7 @@ export default function CandidatesPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))
               )}
             </tbody>

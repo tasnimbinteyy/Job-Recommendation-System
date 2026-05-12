@@ -52,8 +52,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
     const { id } = await params;
 
-    // Only the user themselves can update their own profile
-    if (session.user.id !== id) {
+    // Only the user themselves or an admin can update a profile
+    if (session.user.id !== id && session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

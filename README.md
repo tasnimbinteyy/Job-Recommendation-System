@@ -6,7 +6,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-336791?logo=postgresql)](https://neon.tech)
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed-Vercel-black?logo=vercel)](https://vercel.com)
 
-🔗 Live: https://job-recommendation-system-delta.vercel.app
+🔗 Live: https://jobai-phi.vercel.app/browse
 
 ---
 

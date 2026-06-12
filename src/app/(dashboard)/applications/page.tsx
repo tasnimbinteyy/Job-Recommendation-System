@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { Briefcase, Loader2, Trash2, ChevronDown, Users } from "lucide-react";
 import { toast } from "sonner";
-import type { Application } from "@/types";
 
 const STATUS_STYLES: Record<string, string> = {
   PENDING: "bg-slate-500/10 text-slate-500 border-slate-500/20",
@@ -31,7 +30,7 @@ interface EmployerApplication {
 }
 
 export default function ApplicationsPage() {
-  const [applications, setApplications] = useState<any[]>([]);
+  const [applications, setApplications] = useState<EmployerApplication[]>([]);
   const [role, setRole] = useState<"STUDENT" | "EMPLOYER" | "ADMIN" | null>(null);
   const [loading, setLoading] = useState(true);
   const [withdrawingId, setWithdrawingId] = useState<string | null>(null);
@@ -56,7 +55,7 @@ export default function ApplicationsPage() {
       const res = await fetch(`/api/applications/${id}`, { method: "DELETE" });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to withdraw");
-      setApplications((prev) => prev.filter((a) => a.id !== id));
+      setApplications((prev) => prev.filter((a) => a.id !== id) as EmployerApplication[]);
       toast.success("Application withdrawn.");
     } catch (err: any) {
       toast.error(err.message);
@@ -76,7 +75,7 @@ export default function ApplicationsPage() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to update status");
       setApplications((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, status: json.data.status } : a))
+        prev.map((a) => (a.id === id ? { ...a, status: json.data.status } : a)) as EmployerApplication[]
       );
       toast.success(`Status updated to ${STATUS_LABEL[status]}.`);
     } catch (err: any) {
@@ -334,7 +333,7 @@ export default function ApplicationsPage() {
       )}
 
       <div className="grid gap-4">
-        {applications.map((app) => (
+        {(applications as any[]).map((app) => (
           <div
             key={app.id}
             className="p-5 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/50 flex items-center justify-between hover:shadow-lg transition-all group"

@@ -52,7 +52,23 @@ export async function PATCH(req: NextRequest) {
     const updated = await db.user.update({
       where: { id: userId },
       data: { role },
-      select: { id: true, name: true, role: true },
+      select: { id: true, name: true, role: true, email: true },
+    });
+
+    // Create notification for the user
+    const roleLabels: Record<string, string> = {
+      STUDENT: "Job Seeker",
+      EMPLOYER: "Employer",
+      ADMIN: "Admin",
+    };
+
+    await db.notification.create({
+      data: {
+        userId,
+        title: "Role Updated",
+        message: `Your account role has been changed to ${roleLabels[role]} by an administrator.`,
+        link: "/settings",
+      },
     });
 
     return NextResponse.json({ data: updated });

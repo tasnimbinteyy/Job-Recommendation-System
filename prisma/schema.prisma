@@ -8,22 +8,24 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  name          String?
-  email         String?       @unique
-  emailVerified DateTime?
-  image         String?
-  role          Role          @default(STUDENT)
-  skills        String[]
-  experience    String?
-  resumeUrl     String?
-  createdAt     DateTime      @default(now())
-  onboarded     Boolean       @default(false)
-  accounts      Account[]
-  applications  Application[]
-  jobsPosted    Job[]         @relation("EmployerJobs")
-  notifications Notification[]
-  savedJobs     SavedJob[]
+  id              String         @id @default(cuid())
+  name            String?
+  email           String?        @unique
+  emailVerified   DateTime?
+  image           String?
+  role            Role           @default(STUDENT)
+  skills          String[]
+  experience      String?
+  resumeUrl       String?
+  createdAt       DateTime       @default(now())
+  onboarded       Boolean        @default(false)
+  publicProfile   Boolean        @default(true)
+  showResumeScore Boolean        @default(true)
+  accounts        Account[]
+  applications    Application[]
+  jobsPosted      Job[]          @relation("EmployerJobs")
+  notifications   Notification[]
+  savedJobs       SavedJob[]
 }
 
 model Job {
@@ -37,8 +39,8 @@ model Job {
   employerId     String
   createdAt      DateTime      @default(now())
   applications   Application[]
-  savedBy        SavedJob[]
   employer       User          @relation("EmployerJobs", fields: [employerId], references: [id])
+  savedBy        SavedJob[]
 
   @@index([title])
 }
@@ -83,8 +85,9 @@ model SavedJob {
   userId    String
   jobId     String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, jobId])
   @@index([userId])
 }

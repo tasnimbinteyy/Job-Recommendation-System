@@ -187,7 +187,13 @@ export default function FeaturedJobs() {
     fetch("/api/jobs")
       .then((r) => r.json())
       .then((json) => {
-        if (json.data) setJobs(json.data.slice(0, 3));
+        if (json.data) {
+          // Show newest 3 jobs first
+          const sorted = [...json.data].sort(
+            (a: Job, b: Job) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          setJobs(sorted.slice(0, 3));
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Fingerprint, Bot, Loader2 } from "lucide-react";
+import AIAgentModal from "@/components/home/AIAgentModal";
 
 function computeMatch(userSkills: string[], jobSkills: string[]): number {
   if (!userSkills.length || !jobSkills.length) return 0;
@@ -25,6 +26,7 @@ export default function HeroSection() {
 
   const role = session?.user?.role;
   const loggedIn = !!session?.user;
+  const [modalOpen, setModalOpen] = useState(false);
 
   const secondaryHref = !loggedIn
     ? "/how-it-works"
@@ -114,18 +116,19 @@ export default function HeroSection() {
               }))
             );
           } else {
-            // Guest or student with no skills — show trending jobs by applicants
+            // Guest or student with no skills — show top jobs by applicant demand
             const top = [...jobs]
               .sort((a, b) => (b._count?.applications ?? 0) - (a._count?.applications ?? 0))
               .slice(0, 2);
-            const maxApps = Math.max(top[0]?._count?.applications ?? 1, 1);
-            setCardTitle("Trending Jobs");
-            setCardSubtitle(`${jobs.length} open position${jobs.length !== 1 ? "s" : ""}`);
+            const totalApps = jobs.reduce((sum, j) => sum + (j._count?.applications ?? 0), 0);
+            const companies = new Set(jobs.map((j) => j.companyName)).size;
+            setCardTitle("Market Snapshot");
+            setCardSubtitle(`${jobs.length} open position${jobs.length !== 1 ? "s" : ""} · live`);
             setCardItems(
               top.map((job, i) => ({
                 label: job.title,
-                match: `${job._count?.applications ?? 0} applicants`,
-                value: Math.round(((job._count?.applications ?? 0) / maxApps) * 100),
+                match: job.companyName,
+                value: Math.min(60 + i * 15, 100),
                 color: i === 0 ? "bg-teal-600" : "bg-blue-600",
               }))
             );
@@ -184,22 +187,15 @@ export default function HeroSection() {
             </div>
 
             <div className="flex flex-wrap items-center gap-5 pt-4">
-              <div className="relative">
-                <span className="absolute -top-3 -right-3 z-10 px-2 py-0.5 rounded-full bg-teal-500 text-white text-[9px] font-black uppercase tracking-widest shadow-lg">
-                  Coming Soon
-                </span>
-                <Button
+              <Button
                   size="lg"
-                  asChild
+                  onClick={() => setModalOpen(true)}
                   className="h-16 px-10 bg-teal-600 dark:bg-teal-500 text-white hover:bg-teal-700 dark:hover:bg-teal-400 rounded-2xl font-black transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] gap-3 border-none"
                 >
-                  <Link href={!loggedIn ? "/api/auth/signin" : "/overview"}>
-                    <Bot className="h-5 w-5" />
-                    Activate AI Agent
-                    <ArrowRight className="h-5 w-5" />
-                  </Link>
+                  <Bot className="h-5 w-5" />
+                  Activate AI Agent
+                  <ArrowRight className="h-5 w-5" />
                 </Button>
-              </div>
 
               <Link
                 href={secondaryHref}
@@ -208,6 +204,13 @@ export default function HeroSection() {
                 {secondaryLabel}
               </Link>
             </div>
+
+            <AIAgentModal
+              isOpen={modalOpen}
+              onClose={() => setModalOpen(false)}
+              isLoggedIn={loggedIn}
+              userId={session?.user?.id}
+            />
 
             {loggedIn && (
               <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">
@@ -265,23 +268,74 @@ export default function HeroSection() {
                   </div>
                 )}
 
-                <div className="mt-12 text-center">
-                  <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 tracking-[0.3em] uppercase">
-                    {role === "ADMIN" ? "Live System Data" : role === "EMPLOYER" ? "Your Hiring Stats" : "Verified AI Profile"}
-                  </p>
+                <div className="mt-12 pt-6 border-t border-slate-100 dark:border-white/5">
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    {role === "ADMIN" ? (
+                      <>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">Live</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">DB Status</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-teal-500">Admin</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Access</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">Full</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Control</p>
+                        </div>
+                      </>
+                    ) : role === "EMPLOYER" ? (
+                      <>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">Live</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Postings</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-teal-500">AI</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Matching</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">Real</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Applicants</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <p className="text-xs font-black text-teal-500">AI</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Powered</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">Real</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Jobs</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-black text-slate-900 dark:text-white">Live</p>
+                          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Data</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Social Proof */}
-        <div className="mt-20 py-10 border-t border-slate-200 dark:border-white/5">
-          <div className="flex justify-between items-center opacity-30 grayscale hover:grayscale-0 transition-all duration-500 cursor-default">
-            {["VERCEL", "STRIPE", "LINEAR", "OPENAI", "META"].map((logo) => (
-              <span key={logo} className="text-xs font-black tracking-[0.5em] text-slate-900 dark:text-white">
-                {logo}
-              </span>
+        {/* Stats Bar — real data instead of fake logos */}
+        <div className="mt-20 py-8 border-t border-slate-200 dark:border-white/5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { label: "AI-Powered Matching", value: "Cosine Similarity" },
+              { label: "Auth Providers", value: "Google & GitHub" },
+              { label: "Deployment", value: "Vercel + Neon" },
+              { label: "Data Privacy", value: "JWT · No Passwords" },
+            ].map((item) => (
+              <div key={item.label} className="text-center">
+                <p className="text-sm font-black text-slate-900 dark:text-white">{item.value}</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{item.label}</p>
+              </div>
             ))}
           </div>
         </div>

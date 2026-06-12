@@ -1,316 +1,3 @@
-// // // import { Card, CardContent } from "@/components/ui/card";
-// // // import { Brain, Target, Zap, Shield } from "lucide-react";
-
-// // // const features = [
-// // //   {
-// // //     title: "AI-Powered Matching",
-// // //     description:
-// // //       "Intelligent algorithms analyze resumes and job requirements to deliver accurate job matches.",
-// // //     icon: Brain,
-// // //   },
-// // //   {
-// // //     title: "Personalized Recommendations",
-// // //     description:
-// // //       "Tailored job and company suggestions based on your skills, goals, and experience.",
-// // //     icon: Target,
-// // //   },
-// // //   {
-// // //     title: "Instant Analysis",
-// // //     description:
-// // //       "Get quick resume scoring, skill-gap insights, and actionable feedback instantly.",
-// // //     icon: Zap,
-// // //   },
-// // //   {
-// // //     title: "Privacy First",
-// // //     description:
-// // //       "Your data is handled securely with privacy-focused design and mock-only processing.",
-// // //     icon: Shield,
-// // //   },
-// // // ];
-
-// // // export default function FeaturesSection() {
-// // //   return (
-// // //     <section className="px-6 py-20 bg-white dark:bg-[#0B0F19]">
-// // //       <div className="mx-auto max-w-6xl">
-
-// // //         {/* Header */}
-// // //         <div className="mb-14 text-center">
-// // //           <h2 className="text-3xl font-bold sm:text-4xl">
-// // //             Powerful Features
-// // //           </h2>
-// // //           <p className="mt-4 text-slate-600 dark:text-gray-400">
-// // //             Everything you need to accelerate your job search
-// // //           </p>
-// // //         </div>
-
-// // //         {/* Grid */}
-// // //         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-// // //           {features.map((feature) => {
-// // //             const Icon = feature.icon;
-
-// // //             return (
-// // //               <Card
-// // //                 key={feature.title}
-// // //                 className="
-// // //                   group
-// // //                   bg-white
-// // //                   border border-gray-200
-// // //                   transition-all duration-300
-// // //                   hover:-translate-y-1 hover:border-cyan-400
-// // //                   dark:bg-[#111827]
-// // //                   dark:border-transparent
-// // //                 "
-// // //               >
-// // //                 <CardContent className="p-6">
-
-// // //                   {/* Icon */}
-// // //                   <div
-// // //                     className="
-// // //                       mb-4 flex h-12 w-12 items-center justify-center
-// // //                       rounded-lg
-// // //                       bg-teal-50 text-teal-600
-// // //                       dark:bg-teal-500/10 dark:text-teal-400
-// // //                     "
-// // //                   >
-// // //                     <Icon className="h-6 w-6" />
-// // //                   </div>
-
-// // //                   {/* Title */}
-// // //                   <h3 className="mb-2 text-lg font-semibold">
-// // //                     {feature.title}
-// // //                   </h3>
-
-// // //                   {/* Description */}
-// // //                   <p className="text-sm text-slate-600 dark:text-gray-400">
-// // //                     {feature.description}
-// // //                   </p>
-
-// // //                 </CardContent>
-// // //               </Card>
-// // //             );
-// // //           })}
-// // //         </div>
-
-// // //       </div>
-// // //     </section>
-// // //   );
-// // // }
-
-// // "use client";
-
-// // import { Card, CardContent } from "@/components/ui/card";
-// // import { Brain, Target, Zap, Shield, Sparkles } from "lucide-react";
-
-// // const features = [
-// //   {
-// //     title: "AI-Powered Matching",
-// //     description: "Intelligent algorithms analyze resumes and requirements to deliver accurate job matches.",
-// //     icon: Brain,
-// //     gradient: "from-teal-500/20 to-transparent",
-// //   },
-// //   {
-// //     title: "Personalized Suggestions",
-// //     description: "Tailored career paths based on your unique skill set, goals, and professional experience.",
-// //     icon: Target,
-// //     gradient: "from-blue-500/20 to-transparent",
-// //   },
-// //   {
-// //     title: "Instant Analysis",
-// //     description: "Get real-time resume scoring, skill-gap insights, and actionable feedback instantly.",
-// //     icon: Zap,
-// //     gradient: "from-amber-500/20 to-transparent",
-// //   },
-// //   {
-// //     title: "Privacy First",
-// //     description: "Your data is handled securely with high-level encryption and privacy-focused design.",
-// //     icon: Shield,
-// //     gradient: "from-emerald-500/20 to-transparent",
-// //   },
-// // ];
-
-// // export default function FeaturesSection() {
-// //   return (
-// //     <section className="relative px-6 py-32 bg-white dark:bg-[#020617] transition-colors duration-500 overflow-hidden">
-      
-// //       {/* Background Decorative Element */}
-// //       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
-
-// //       <div className="relative z-10 mx-auto max-w-7xl">
-        
-// //         {/* Modern Header Section */}
-// //         <div className="mb-20 space-y-4">
-// //           <div className="flex items-center gap-2">
-// //             <div className="h-[1px] w-8 bg-teal-500" />
-// //             <span className="text-[10px] font-black tracking-[0.3em] text-teal-600 dark:text-teal-400 uppercase">
-// //               Core Capabilities
-// //             </span>
-// //           </div>
-// //           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-// //             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-900 dark:text-white max-w-2xl leading-[0.9]">
-// //               Everything you need to <span className="text-teal-500">accelerate</span> your career.
-// //             </h2>
-// //             <p className="max-w-xs text-slate-500 dark:text-slate-400 font-medium text-sm md:text-right">
-// //               We've built the most advanced AI engine to ensure you never have to "search" for a job again.
-// //             </p>
-// //           </div>
-// //         </div>
-
-// //         {/* Features Grid with Bento-ish Style */}
-// //         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-// //           {features.map((feature, idx) => {
-// //             const Icon = feature.icon;
-
-// //             return (
-// //               <Card
-// //                 key={feature.title}
-// //                 className="
-// //                   group relative
-// //                   bg-slate-50 dark:bg-white/[0.02]
-// //                   border border-slate-200 dark:border-white/5
-// //                   transition-all duration-500
-// //                   hover:scale-[1.02] hover:shadow-2xl hover:shadow-teal-500/10
-// //                   overflow-hidden
-// //                 "
-// //               >
-// //                 {/* Spotlight/Glow Effect on Hover */}
-// //                 <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 pointer-events-none" 
-// //                      style={{ background: `radial-gradient(circle at top right, var(--tw-gradient-from), transparent 70%)` }} 
-// //                 />
-
-// //                 <CardContent className="p-8 relative z-10">
-// //                   {/* Icon with animated container */}
-// //                   <div className="mb-8 relative">
-// //                     <div className="
-// //                       flex h-12 w-12 items-center justify-center
-// //                       rounded-xl bg-white dark:bg-white/5 
-// //                       border border-slate-200 dark:border-white/10
-// //                       text-teal-600 dark:text-teal-400
-// //                       group-hover:rotate-[10deg] transition-transform duration-500
-// //                       shadow-sm
-// //                     ">
-// //                       <Icon className="h-6 w-6" />
-// //                     </div>
-// //                     {/* Subtle dot background */}
-// //                     <div className="absolute -top-4 -left-4 h-16 w-16 bg-teal-500/10 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-// //                   </div>
-
-// //                   {/* Title */}
-// //                   <h3 className="mb-3 text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-// //                     {feature.title}
-// //                   </h3>
-
-// //                   {/* Description */}
-// //                   <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-// //                     {feature.description}
-// //                   </p>
-
-// //                   {/* Decorative Arrow (Visible on hover) */}
-// //                   <div className="mt-6 flex items-center gap-2 text-teal-600 dark:text-teal-400 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-// //                     <span className="text-[10px] font-black uppercase tracking-widest">Learn More</span>
-// //                     <Sparkles className="h-3 w-3" />
-// //                   </div>
-// //                 </CardContent>
-// //               </Card>
-// //             );
-// //           })}
-// //         </div>
-// //       </div>
-// //     </section>
-// //   );
-// // }
-
-
-// "use client";
-
-// import { Card, CardContent } from "@/components/ui/card";
-// import { Brain, Target, Zap, Shield, Sparkles } from "lucide-react";
-
-// const features = [
-//   {
-//     title: "AI-Powered Matching",
-//     description: "Intelligent algorithms analyze resumes and requirements to deliver accurate job matches.",
-//     icon: Brain,
-//   },
-//   {
-//     title: "Personalized Suggestions",
-//     description: "Tailored career paths based on your unique skill set, goals, and professional experience.",
-//     icon: Target,
-//   },
-//   {
-//     title: "Instant Analysis",
-//     description: "Get real-time resume scoring, skill-gap insights, and actionable feedback instantly.",
-//     icon: Zap,
-//   },
-//   {
-//     title: "Privacy First",
-//     description: "Your data is handled securely with high-level encryption and privacy-focused design.",
-//     icon: Shield,
-//   },
-// ];
-
-// export default function FeaturesSection() {
-//   return (
-//     <section className="relative px-6 py-32 bg-white dark:bg-[#020617] transition-colors duration-500 overflow-hidden">
-//       {/* Background Decor */}
-//       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-teal-500/30 to-transparent" />
-
-//       <div className="relative z-10 mx-auto max-w-7xl">
-//         {/* Header Section */}
-//         <div className="mb-20 space-y-4">
-//           <div className="flex items-center gap-2">
-//             <div className="h-[1px] w-8 bg-teal-500" />
-//             <span className="text-[10px] font-black tracking-[0.3em] text-teal-600 dark:text-teal-400 uppercase">Core Capabilities</span>
-//           </div>
-//           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-//             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-slate-900 dark:text-white max-w-2xl leading-[0.9]">
-//               Everything you need to <span className="text-teal-500">accelerate</span> your career.
-//             </h2>
-//             <p className="max-w-xs text-slate-500 dark:text-slate-400 font-medium text-sm md:text-right leading-relaxed">
-//               We&apos;ve built the most advanced AI engine to ensure you never have to search for a job again.
-//             </p>
-//           </div>
-//         </div>
-
-//         {/* Grid Section */}
-//         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-//           {features.map((feature) => {
-//             const Icon = feature.icon;
-//             return (
-//               <Card
-//                 key={feature.title}
-//                 className="group relative bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-teal-500/10 overflow-hidden"
-//               >
-//                 <CardContent className="p-8 relative z-10">
-//                   {/* Icon Container - Fixed Hydration Issue by removing extra spaces/newlines */}
-//                   <div className="mb-8 relative">
-//                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-teal-600 dark:text-teal-400 group-hover:rotate-[10deg] transition-transform duration-500 shadow-sm">
-//                       <Icon className="h-6 w-6" />
-//                     </div>
-//                     <div className="absolute -top-4 -left-4 h-16 w-16 bg-teal-500/10 blur-2xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-//                   </div>
-
-//                   <h3 className="mb-3 text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-//                     {feature.title}
-//                   </h3>
-
-//                   <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-400 font-medium">
-//                     {feature.description}
-//                   </p>
-
-//                   <div className="mt-6 flex items-center gap-2 text-teal-600 dark:text-teal-400 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-//                     <span className="text-[10px] font-black uppercase tracking-widest">Learn More</span>
-//                     <Sparkles className="h-3 w-3" />
-//                   </div>
-//                 </CardContent>
-//               </Card>
-//             );
-//           })}
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
 "use client";
 
 import React from "react";
@@ -322,46 +9,46 @@ import { Brain, Target, Zap, Shield, Sparkles, ArrowUpRight } from "lucide-react
 const features = [
   {
     title: "AI-Powered Matching",
-    description: "Our proprietary neural engine decodes your career DNA to find roles where you'll truly excel.",
+    description: "Cosine Similarity algorithm calculates a precise match score between your skills and every job's requirements — the same technique used by search engines.",
     icon: Brain,
     accent: "group-hover:text-teal-500",
     href: (role: string | undefined, loggedIn: boolean) => {
       if (!loggedIn) return "/browse";
-      if (role === "EMPLOYER") return "/jobs";       // employer manages their jobs
-      if (role === "ADMIN") return "/admin";          // admin sees system overview
-      return "/browse";                               // student browses with AI scores
+      if (role === "EMPLOYER") return "/jobs";
+      if (role === "ADMIN") return "/admin";
+      return "/browse";
     },
   },
   {
-    title: "Strategic Suggestions",
-    description: "Personalized career roadmaps designed to bridge the gap between your skills and goals.",
+    title: "Company Recommendations",
+    description: "Companies are ranked by average skill match score across all their job postings — personalized to your unique skill set in real time.",
     icon: Target,
     accent: "group-hover:text-blue-500",
     href: (role: string | undefined, loggedIn: boolean) => {
       if (!loggedIn) return "/companies";
-      if (role === "EMPLOYER") return "/candidates";  // employer sees candidate pool
-      if (role === "ADMIN") return "/admin/users";    // admin sees all users
-      return "/recommendations";                      // student sees personalized company recs
+      if (role === "EMPLOYER") return "/candidates";
+      if (role === "ADMIN") return "/admin/users";
+      return "/recommendations";
     },
   },
   {
-    title: "Instant DNA Analysis",
-    description: "Real-time resume scoring and skill-gap audits to keep you ahead of the hiring curve.",
+    title: "Resume Score & Skill Gap",
+    description: "Get a 0–100 resume score based on skill count, market demand, and experience. See exactly which skills you're missing for each job you apply to.",
     icon: Zap,
     accent: "group-hover:text-amber-500",
     href: (role: string | undefined, loggedIn: boolean) => {
       if (!loggedIn) return "/how-it-works#resume";
-      if (role === "EMPLOYER") return "/how-it-works#cosine"; // employer sees matching algorithm
-      if (role === "ADMIN") return "/admin/applications";     // admin sees all applications & scores
-      return "/profile";                                      // student sees their live resume score
+      if (role === "EMPLOYER") return "/how-it-works#cosine";
+      if (role === "ADMIN") return "/admin/applications";
+      return "/profile";
     },
   },
   {
-    title: "Stealth Mode Privacy",
-    description: "Bank-grade encryption ensures your data remains invisible until you decide to reveal it.",
+    title: "Secure by Design",
+    description: "OAuth-only authentication via Google and GitHub — no passwords stored. Role-based access control enforced at the middleware level on every route.",
     icon: Shield,
     accent: "group-hover:text-emerald-500",
-    href: (_role: string | undefined, _loggedIn: boolean) => "/how-it-works#profile",
+    href: (_role: string | undefined, _loggedIn: boolean) => "/how-it-works",
   },
 ];
 

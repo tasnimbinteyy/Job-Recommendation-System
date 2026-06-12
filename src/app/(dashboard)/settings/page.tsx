@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   User, Palette, ShieldCheck, Eye, LogOut, Trash2,
-  Sun, Moon, Monitor, Check, Loader2, Github, Chrome,
+  Sun, Moon, Monitor, Check, Loader2, Github,
   Building2, BadgeCheck, AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,7 +22,6 @@ const THEMES = [
   { id: "system", label: "System", icon: Monitor },
 ];
 
-// Sections per role
 const STUDENT_SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "appearance", label: "Appearance", icon: Palette },
@@ -42,9 +42,11 @@ const ADMIN_SECTIONS = [
   { id: "account", label: "Account", icon: ShieldCheck },
 ];
 
-export default function SettingsPage() {
+function SettingsContent() {
   const { data: session } = useSession();
   const { theme, setTheme } = useTheme();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   const role: string = session?.user?.role ?? "STUDENT";
 
@@ -53,35 +55,75 @@ export default function SettingsPage() {
     role === "ADMIN" ? ADMIN_SECTIONS :
     STUDENT_SECTIONS;
 
-  const [activeSection, setActiveSection] = useState("profile");
+  // Persist active section in URL query param — survives refresh
+  const sectionFromUrl = searchParams.get("tab");
+  const validIds = sections.map((s) => s.id);
+  const [activeSection, setActiveSection] = useState(
+    sectionFromUrl && validIds.includes(sectionFromUrl) ? sectionFromUrl : "profile"
+  );
 
-  // Profile
+  const handleSectionChange = (id: string) => {
+    setActiveSection(id);
+    router.replace(`/settings?tab=${id}`, { scroll: false });
+  };
+
   const [name, setName] = useState("");
   const [savingName, setSavingName] = useState(false);
 
-  // Company (Employer only) — stored in experience field
   const [companyInfo, setCompanyInfo] = useState("");
   const [savingCompany, setSavingCompany] = useState(false);
 
-  // Danger zone
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    if (session?.user?.name) setName(session.user.name);
-  }, [session]);
+  // Privacy preferences — loaded from DB, saved to DB
+  const [publicProfile, setPublicProfile] = useState(true);
+  const [showResumeScore, setShowResumeScore] = useState(true);
+  const [savingPrivacy, setSavingPrivacy] = useState<string | null>(null);
 
-  // Fetch company info for employer
+  // Single fetch on mount — loads privacy prefs + employer company info
   useEffect(() => {
-    if (role !== "EMPLOYER" || !session?.user?.id) return;
+    if (!session?.user?.id) return;
     fetch(`/api/candidates/${session.user.id}`)
       .then((r) => r.json())
       .then((res) => {
-        if (res.data?.experience) setCompanyInfo(res.data.experience);
+        if (!res.data) return;
+        setPublicProfile(res.data.publicProfile ?? true);
+        setShowResumeScore(res.data.showResumeScore ?? true);
+        if (role === "EMPLOYER" && res.data.experience) {
+          setCompanyInfo(res.data.experience);
+        }
       })
       .catch(() => {});
-  }, [role, session?.user?.id]);
+  }, [session?.user?.id, role]);
+
+  const handlePrivacyChange = async (key: "publicProfile" | "showResumeScore", value: boolean) => {
+    if (!session?.user?.id) return;
+    if (key === "publicProfile") setPublicProfile(value);
+    else setShowResumeScore(value);
+    setSavingPrivacy(key);
+    try {
+      const res = await fetch(`/api/candidates/${session.user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: value }),
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Privacy preference updated.");
+    } catch {
+      // revert on failure
+      if (key === "publicProfile") setPublicProfile(!value);
+      else setShowResumeScore(!value);
+      toast.error("Failed to save preference.");
+    } finally {
+      setSavingPrivacy(null);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.user?.name) setName(session.user.name);
+  }, [session]);
 
   const handleSaveName = async () => {
     if (!name.trim() || !session?.user?.id) return;
@@ -159,7 +201,7 @@ export default function SettingsPage() {
         {/* Main Content */}
         <div className="flex-1 space-y-5">
 
-          {/* ── PROFILE (all roles) ── */}
+          {/* ── PROFILE ── */}
           {activeSection === "profile" && (
             <Card className="bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/5">
               <CardHeader>
@@ -168,7 +210,6 @@ export default function SettingsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Avatar */}
                 <div className="flex items-center gap-5">
                   <div className="h-20 w-20 rounded-2xl bg-gradient-to-tr from-teal-500 to-blue-600 p-[2px] flex-shrink-0">
                     <div className="h-full w-full rounded-2xl bg-white dark:bg-slate-900 overflow-hidden flex items-center justify-center">
@@ -185,17 +226,12 @@ export default function SettingsPage() {
                       <BadgeCheck size={14} className="text-teal-500" />
                     </div>
                     <p className="text-xs text-slate-400 mt-0.5">{session?.user?.email}</p>
-                    <p className="text-[10px] text-slate-400 mt-1">
-                      Profile picture is managed by your OAuth provider
-                    </p>
+                    <p className="text-[10px] text-slate-400 mt-1">Profile picture is managed by your OAuth provider</p>
                   </div>
                 </div>
 
-                {/* Display Name */}
                 <div className="space-y-2">
-                  <Label className="text-xs font-black uppercase tracking-widest text-slate-500">
-                    Display Name
-                  </Label>
+                  <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Display Name</Label>
                   <div className="flex gap-3">
                     <Input
                       value={name}
@@ -220,19 +256,14 @@ export default function SettingsPage() {
                   </p>
                 </div>
 
-                {/* Email (read-only) */}
                 <div className="space-y-2">
-                  <Label className="text-xs font-black uppercase tracking-widest text-slate-500">
-                    Email Address
-                  </Label>
+                  <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Email Address</Label>
                   <Input
                     value={session?.user?.email ?? ""}
                     readOnly
                     className="border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-slate-400 cursor-not-allowed"
                   />
-                  <p className="text-xs text-slate-400">
-                    Email is managed by your OAuth provider and cannot be changed here.
-                  </p>
+                  <p className="text-xs text-slate-400">Email is managed by your OAuth provider and cannot be changed here.</p>
                 </div>
               </CardContent>
             </Card>
@@ -252,23 +283,17 @@ export default function SettingsPage() {
                     This information is shown to candidates when they view your job postings.
                   </p>
                 </div>
-
                 <div className="space-y-2">
-                  <Label className="text-xs font-black uppercase tracking-widest text-slate-500">
-                    Company Description
-                  </Label>
+                  <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Company Description</Label>
                   <textarea
                     value={companyInfo}
                     onChange={(e) => setCompanyInfo(e.target.value)}
                     rows={4}
-                    placeholder="e.g. We are a fast-growing fintech startup based in Dhaka, building the future of digital payments..."
+                    placeholder="e.g. We are a fast-growing fintech startup based in Dhaka..."
                     className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5 px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-500 resize-none placeholder:text-slate-400"
                   />
-                  <p className="text-xs text-slate-400">
-                    Describe your company, culture, and what makes it a great place to work.
-                  </p>
+                  <p className="text-xs text-slate-400">Describe your company, culture, and what makes it a great place to work.</p>
                 </div>
-
                 <Button
                   onClick={handleSaveCompany}
                   disabled={savingCompany}
@@ -280,7 +305,7 @@ export default function SettingsPage() {
             </Card>
           )}
 
-          {/* ── APPEARANCE (all roles) ── */}
+          {/* ── APPEARANCE ── */}
           {activeSection === "appearance" && (
             <Card className="bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/5">
               <CardHeader>
@@ -289,9 +314,7 @@ export default function SettingsPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Label className="text-xs font-black uppercase tracking-widest text-slate-500">
-                  Theme
-                </Label>
+                <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Theme</Label>
                 <div className="grid grid-cols-3 gap-3">
                   {THEMES.map((t) => {
                     const Icon = t.icon;
@@ -319,17 +342,14 @@ export default function SettingsPage() {
                     );
                   })}
                 </div>
-                <p className="text-xs text-slate-400">
-                  System theme follows your device's light/dark preference automatically.
-                </p>
+                <p className="text-xs text-slate-400">System theme follows your device&apos;s light/dark preference automatically.</p>
               </CardContent>
             </Card>
           )}
 
-          {/* ── ACCOUNT (all roles) ── */}
+          {/* ── ACCOUNT ── */}
           {activeSection === "account" && (
             <div className="space-y-5">
-              {/* Connected Account */}
               <Card className="bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/5">
                 <CardHeader>
                   <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2 text-slate-900 dark:text-white">
@@ -351,13 +371,10 @@ export default function SettingsPage() {
                       Connected
                     </span>
                   </div>
-                  <p className="text-xs text-slate-400">
-                    Your account is secured via OAuth (Google/GitHub). No password is stored on our servers.
-                  </p>
+                  <p className="text-xs text-slate-400">Your account is secured via OAuth (Google/GitHub). No password is stored on our servers.</p>
                 </CardContent>
               </Card>
 
-              {/* Sign Out */}
               <Card className="bg-white dark:bg-slate-900/40 border-slate-200 dark:border-white/5">
                 <CardHeader>
                   <CardTitle className="text-sm font-black uppercase tracking-widest flex items-center gap-2 text-slate-900 dark:text-white">
@@ -365,9 +382,7 @@ export default function SettingsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    Sign out from your current session on this device.
-                  </p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Sign out from your current session on this device.</p>
                   <Button
                     variant="outline"
                     onClick={() => signOut({ callbackUrl: "/" })}
@@ -378,7 +393,6 @@ export default function SettingsPage() {
                 </CardContent>
               </Card>
 
-              {/* Danger Zone — not shown for ADMIN */}
               {role !== "ADMIN" && (
                 <Card className="bg-white dark:bg-slate-900/40 border-red-200 dark:border-red-500/20">
                   <CardHeader>
@@ -405,9 +419,7 @@ export default function SettingsPage() {
                         <div className="flex items-start gap-3">
                           <AlertTriangle size={18} className="text-red-500 flex-shrink-0 mt-0.5" />
                           <div className="space-y-1">
-                            <p className="text-sm font-bold text-red-600 dark:text-red-400">
-                              This action is permanent and cannot be undone.
-                            </p>
+                            <p className="text-sm font-bold text-red-600 dark:text-red-400">This action is permanent and cannot be undone.</p>
                             <p className="text-xs text-red-500/80 dark:text-red-400/70">
                               {role === "EMPLOYER"
                                 ? "All your jobs, applications received, and account data will be permanently deleted."
@@ -462,25 +474,35 @@ export default function SettingsPage() {
                   <Eye size={16} className="text-teal-500" /> Privacy Preferences
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-                  <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Coming Soon</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Granular privacy controls (public profile, resume score visibility) are planned for a future update.
-                  </p>
-                </div>
-                {[
-                  { label: "Public Profile", desc: "Allow employers to view your profile and skills in the candidates list." },
-                  { label: "Show Resume Score", desc: "Display your AI resume score on your public profile." },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-4 border-t border-slate-100 dark:border-white/5 opacity-40 cursor-not-allowed">
-                    <div className="space-y-0.5 pr-8">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white">{item.label}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
-                    </div>
-                    <Switch disabled checked={false} />
+              <CardContent className="space-y-1">
+                <div className="flex items-center justify-between py-4 border-b border-slate-100 dark:border-white/5">
+                  <div className="space-y-0.5 pr-8">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">Public Profile</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Allow employers to view your profile and skills in the candidates list.</p>
                   </div>
-                ))}
+                  <div className="flex items-center gap-2">
+                    {savingPrivacy === "publicProfile" && <Loader2 size={14} className="animate-spin text-teal-500" />}
+                    <Switch
+                      checked={publicProfile}
+                      disabled={savingPrivacy !== null}
+                      onCheckedChange={(v) => handlePrivacyChange("publicProfile", v)}
+                    />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between py-4">
+                  <div className="space-y-0.5 pr-8">
+                    <p className="text-sm font-bold text-slate-900 dark:text-white">Show Resume Score</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Display your AI resume score on your public profile.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {savingPrivacy === "showResumeScore" && <Loader2 size={14} className="animate-spin text-teal-500" />}
+                    <Switch
+                      checked={showResumeScore}
+                      disabled={savingPrivacy !== null}
+                      onCheckedChange={(v) => handlePrivacyChange("showResumeScore", v)}
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
           )}
@@ -490,16 +512,14 @@ export default function SettingsPage() {
         {/* Right Sidebar Nav */}
         <aside className="lg:w-52 flex-shrink-0">
           <div className="sticky top-4 space-y-1">
-            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 mb-3">
-              Settings
-            </p>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-4 mb-3">Settings</p>
             <nav className="flex flex-row lg:flex-col gap-1">
               {sections.map((s) => {
                 const Icon = s.icon;
                 return (
                   <button
                     key={s.id}
-                    onClick={() => setActiveSection(s.id)}
+                    onClick={() => handleSectionChange(s.id)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all w-full text-left ${
                       activeSection === s.id
                         ? "bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20"
@@ -517,5 +537,17 @@ export default function SettingsPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="animate-spin text-teal-500" size={32} />
+      </div>
+    }>
+      <SettingsContent />
+    </Suspense>
   );
 }

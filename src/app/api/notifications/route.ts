@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import db from "@/lib/db";
 
@@ -18,6 +18,34 @@ export async function GET() {
   } catch (error) {
     console.error("[GET /api/notifications]", error);
     return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+  }
+}
+
+// Create notification (Admin/System use)
+export async function POST(req: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Only admins can manually create notifications
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const { userId, title, message, link } = await req.json();
+
+    if (!userId || !title || !message) {
+      return NextResponse.json({ error: "userId, title, and message are required" }, { status: 400 });
+    }
+
+    const notification = await db.notification.create({
+      data: { userId, title, message, link: link || null },
+    });
+
+    return NextResponse.json({ data: notification }, { status: 201 });
+  } catch (error) {
+    console.error("[POST /api/notifications]", error);
+    return NextResponse.json({ error: "Failed to create notification" }, { status: 500 });
   }
 }
 

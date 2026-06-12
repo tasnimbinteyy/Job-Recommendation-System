@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer } from "recharts";
 import { IconUserCircle, IconChartBar } from "@tabler/icons-react";
-import { Edit2, Check, X, Loader2, Plus, Trash2, TrendingUp, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { Edit2, Check, X, Loader2, TrendingUp, AlertCircle, CheckCircle, Info, Upload, FileText } from "lucide-react";
 import { toast } from "sonner";
 
 interface ResumeScore {
@@ -49,6 +49,10 @@ export default function ProfilePage() {
   const [resumeScore, setResumeScore] = useState<ResumeScore | null>(null);
   const [scoreLoading, setScoreLoading] = useState(false);
 
+  // CV Upload state
+  const [cvUploading, setCvUploading] = useState(false);
+  const [cvResult, setCvResult] = useState<{ skills: string[]; totalSkills: number } | null>(null);
+
   useEffect(() => {
     if (!session?.user?.id) return;
     fetch(`/api/candidates/${session.user.id}`)
@@ -87,6 +91,45 @@ export default function ProfilePage() {
       toast.error(err.message);
     } finally {
       setSavingSkills(false);
+    }
+  };
+
+  const handleCvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      toast.error("Only PDF files are accepted.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be under 5MB.");
+      return;
+    }
+    setCvUploading(true);
+    setCvResult(null);
+    try {
+      const formData = new FormData();
+      formData.append("cv", file);
+      const res = await fetch("/api/cv-upload", { method: "POST", body: formData });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Upload failed");
+      setCvResult({ skills: json.extracted.skills, totalSkills: json.extracted.totalSkills });
+      // Refresh profile to show merged skills
+      if (session?.user?.id) {
+        const profileRes = await fetch(`/api/candidates/${session.user.id}`);
+        const profileJson = await profileRes.json();
+        if (profileJson.data) setProfile(profileJson.data);
+      }
+      // Refresh resume score
+      const scoreRes = await fetch("/api/resume-score");
+      const scoreJson = await scoreRes.json();
+      if (scoreJson.data) setResumeScore(scoreJson.data);
+      toast.success(`CV parsed! ${json.extracted.skills.length} skills extracted.`);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setCvUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -171,6 +214,41 @@ export default function ProfilePage() {
                 <p className="text-2xl font-black text-slate-900 dark:text-white">{profile?._count?.applications ?? 0}</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Applied</p>
               </div>
+            </div>
+
+            {/* CV Upload */}
+            <div className="mt-6 w-full">
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Upload CV / Resume</p>
+              <label className={`flex items-center justify-center gap-2 w-full h-11 rounded-xl border-2 border-dashed cursor-pointer transition-all ${
+                cvUploading
+                  ? "border-teal-500/40 bg-teal-500/5 cursor-not-allowed"
+                  : "border-slate-200 dark:border-white/10 hover:border-teal-500/50 hover:bg-teal-500/5"
+              }`}>
+                {cvUploading ? (
+                  <><Loader2 size={14} className="animate-spin text-teal-500" /><span className="text-xs font-bold text-teal-500">Parsing...</span></>
+                ) : (
+                  <><Upload size={14} className="text-slate-400" /><span className="text-xs font-bold text-slate-500">Upload PDF (max 5MB)</span></>
+                )}
+                <input type="file" accept="application/pdf" className="hidden" onChange={handleCvUpload} disabled={cvUploading} />
+              </label>
+              {cvResult && (
+                <div className="mt-2 p-3 rounded-xl bg-teal-50 dark:bg-teal-500/10 border border-teal-100 dark:border-teal-500/20">
+                  <div className="flex items-center gap-2 mb-1">
+                    <FileText size={12} className="text-teal-600 dark:text-teal-400" />
+                    <p className="text-[10px] font-black text-teal-700 dark:text-teal-400 uppercase tracking-wider">
+                      {cvResult.skills.length} skills extracted · {cvResult.totalSkills} total
+                    </p>
+                  </div>
+                  {cvResult.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {cvResult.skills.slice(0, 6).map((s) => (
+                        <span key={s} className="px-2 py-0.5 text-[9px] font-bold bg-teal-100 dark:bg-teal-500/20 text-teal-700 dark:text-teal-300 rounded-md">{s}</span>
+                      ))}
+                      {cvResult.skills.length > 6 && <span className="text-[9px] text-teal-500 font-bold">+{cvResult.skills.length - 6} more</span>}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Experience */}

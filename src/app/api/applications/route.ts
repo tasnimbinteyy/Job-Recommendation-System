@@ -87,7 +87,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Cosine Similarity match score calculation
-    const user = await db.user.findUnique({ where: { id: session.user.id }, select: { skills: true } });
+    const user = await db.user.findUnique({ 
+      where: { id: session.user.id }, 
+      select: { skills: true, name: true } 
+    });
     const userSkills = (user?.skills ?? []).map((s) => s.toLowerCase());
     const jobSkills = job.requiredSkills.map((s) => s.toLowerCase());
     let matchScore = 0;
@@ -104,7 +107,18 @@ export async function POST(req: NextRequest) {
         matchScore: parseFloat(matchScore.toFixed(1)),
       },
       include: {
-        job: { select: { title: true, companyName: true } },
+        job: { select: { title: true, companyName: true, employerId: true } },
+        user: { select: { name: true } },
+      },
+    });
+
+    // Create notification for employer
+    await db.notification.create({
+      data: {
+        userId: application.job.employerId,
+        title: "New Application Received",
+        message: `${application.user.name || "A candidate"} applied for ${application.job.title} at ${application.job.companyName}. Match score: ${matchScore.toFixed(1)}%`,
+        link: "/applications",
       },
     });
 

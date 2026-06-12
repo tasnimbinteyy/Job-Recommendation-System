@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Bell, Check, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
@@ -17,11 +17,13 @@ type Notification = {
 
 export default function NotificationBell() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [marking, setMarking] = useState(false);
+  const [markingId, setMarkingId] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
@@ -39,7 +41,6 @@ export default function NotificationBell() {
   useEffect(() => {
     fetchNotifications();
     const interval = setInterval(() => {
-      // Don't poll when the tab is hidden — saves unnecessary DB hits
       if (document.visibilityState === "visible") fetchNotifications();
     }, 30000);
     return () => clearInterval(interval);
@@ -62,6 +63,25 @@ export default function NotificationBell() {
       setUnreadCount(0);
     } catch {}
     finally { setMarking(false); }
+  };
+
+  // Mark individual notification as read and navigate
+  const handleNotificationClick = async (n: Notification) => {
+    if (!n.read) {
+      setMarkingId(n.id);
+      try {
+        await fetch(`/api/notifications/${n.id}`, { method: "PATCH" });
+        setNotifications((prev) =>
+          prev.map((item) => item.id === n.id ? { ...item, read: true } : item)
+        );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
+      } catch {}
+      finally { setMarkingId(null); }
+    }
+    if (n.link) {
+      setOpen(false);
+      router.push(n.link);
+    }
   };
 
   const timeAgo = (date: string) => {
@@ -119,30 +139,24 @@ export default function NotificationBell() {
               notifications.map((n) => (
                 <div
                   key={n.id}
+                  onClick={() => handleNotificationClick(n)}
                   className={cn(
-                    "px-4 py-3 border-b border-slate-50 dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors",
-                    !n.read && "bg-teal-500/5 dark:bg-teal-500/5"
+                    "px-4 py-3 border-b border-slate-50 dark:border-white/5 last:border-0 transition-colors",
+                    !n.read && "bg-teal-500/5",
+                    (n.link || !n.read) && "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5",
+                    n.read && !n.link && "cursor-default"
                   )}
                 >
                   <div className="flex items-start gap-2">
-                    {!n.read && (
+                    {markingId === n.id ? (
+                      <Loader2 size={8} className="animate-spin text-teal-500 flex-shrink-0 mt-1.5" />
+                    ) : !n.read ? (
                       <div className="h-2 w-2 rounded-full bg-teal-500 flex-shrink-0 mt-1.5" />
-                    )}
-                    <div className={cn("flex-1", n.read && "pl-4")}>
+                    ) : null}
+                    <div className={cn("flex-1", n.read && markingId !== n.id && "pl-4")}>
                       <p className="text-xs font-bold text-slate-900 dark:text-white">{n.title}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">{n.message}</p>
-                      <div className="flex items-center justify-between mt-1.5">
-                        <span className="text-[10px] text-slate-400">{timeAgo(n.createdAt)}</span>
-                        {n.link && (
-                          <Link
-                            href={n.link}
-                            onClick={() => setOpen(false)}
-                            className="text-[10px] font-bold text-teal-600 dark:text-teal-400 hover:underline"
-                          >
-                            View →
-                          </Link>
-                        )}
-                      </div>
+                      <span className="text-[10px] text-slate-400 mt-1 block">{timeAgo(n.createdAt)}</span>
                     </div>
                   </div>
                 </div>

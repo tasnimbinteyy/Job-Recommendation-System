@@ -117,10 +117,19 @@ export default function CTASection() {
                   {uploading ? <Loader2 className="h-6 w-6 animate-spin" /> : uploaded ? <CheckCircle className="h-6 w-6" /> : <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />}
                 </Button>
               </>
-            ) : (
+            ) : session?.user ? (
+              // Logged in but not student (Employer or Admin)
               <Button asChild className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn">
-                <Link href="/profile">
-                  Launch Profile
+                <Link href={session.user.role === "EMPLOYER" ? "/jobs" : "/admin"}>
+                  {session.user.role === "EMPLOYER" ? "My Jobs" : "Admin Panel"}
+                  <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />
+                </Link>
+              </Button>
+            ) : (
+              // Not logged in
+              <Button asChild className="h-16 bg-teal-500 hover:bg-teal-600 text-white text-xl font-black rounded-2xl transition-all flex items-center justify-between px-10 shadow-[0_10px_30px_rgba(20,184,166,0.4)] border-none group/btn">
+                <Link href="/api/auth/signin">
+                  Get Started Free
                   <ArrowRight className="h-6 w-6 transition-transform group-hover/btn:translate-x-2" />
                 </Link>
               </Button>

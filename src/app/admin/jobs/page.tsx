@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Briefcase, Loader2, MapPin, Users, Search } from "lucide-react";
+import { Briefcase, Loader2, MapPin, Users, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 
@@ -21,6 +21,7 @@ export default function AdminJobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/jobs")
@@ -32,6 +33,22 @@ export default function AdminJobsPage() {
       .catch((err) => toast.error(err instanceof Error ? err.message : "Failed to load"))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleDelete = async (id: string, title: string) => {
+    if (!confirm(`Delete "${title}"? This will also remove all associated applications.`)) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to delete job");
+      setJobs((prev) => prev.filter((j) => j.id !== id));
+      toast.success(`"${title}" deleted successfully.`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to delete");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const filtered = jobs.filter(
     (j) =>
@@ -89,6 +106,7 @@ export default function AdminJobsPage() {
                 <th className="text-left px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider hidden lg:table-cell">Skills</th>
                 <th className="text-left px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Applicants</th>
                 <th className="text-left px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider hidden md:table-cell">Posted</th>
+                <th className="px-6 py-4 text-xs font-black text-slate-500 uppercase tracking-wider">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-white/5">
@@ -127,6 +145,18 @@ export default function AdminJobsPage() {
                   </td>
                   <td className="px-6 py-4 hidden md:table-cell text-xs text-slate-400">
                     {new Date(job.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      onClick={() => handleDelete(job.id, job.title)}
+                      disabled={deletingId === job.id}
+                      className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all disabled:opacity-40"
+                      title="Delete job"
+                    >
+                      {deletingId === job.id
+                        ? <Loader2 size={15} className="animate-spin" />
+                        : <Trash2 size={15} />}
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -22,6 +22,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         experience: true,
         role: true,
         createdAt: true,
+        publicProfile: true,
+        showResumeScore: true,
         applications: {
           orderBy: { createdAt: "desc" },
           include: {
@@ -58,7 +60,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }
 
     const body = await req.json();
-    const { skills, experience, name } = body;
+    const { skills, experience, name, publicProfile, showResumeScore } = body;
 
     const parsedSkills = Array.isArray(skills)
       ? skills.map((s: string) => s.trim()).filter(Boolean)
@@ -72,8 +74,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         ...(parsedSkills !== undefined && { skills: parsedSkills }),
         ...(experience !== undefined && { experience: experience.trim() || null }),
         ...(name !== undefined && { name: name.trim() || null }),
+        ...(publicProfile !== undefined && { publicProfile }),
+        ...(showResumeScore !== undefined && { showResumeScore }),
       },
-      select: { id: true, name: true, skills: true, experience: true },
+      select: { id: true, name: true, skills: true, experience: true, publicProfile: true, showResumeScore: true },
     });
 
     return NextResponse.json({ data: updated });

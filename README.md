@@ -1,4 +1,4 @@
-# Modeling Skill Affinity for Personalized Employment Matching Systems
+# AI-Powered Job Recommendation System
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org)

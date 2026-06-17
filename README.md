@@ -563,7 +563,25 @@ pnpm seed
 
 This will:
 - Set your account as ADMIN
-- Seed 17 realistic Bangladeshi tech job listings (Brain Station 23, Pathao, bKash, Chaldal, etc.)
+- Seed 36 realistic job listings across 10 categories (tech + non-tech, local + remote)
+
+Seeded Job Categories
+
+| Category | Companies / Roles |
+| -------------------- | ----------------------------------------------------------------------- |
+| Software Engineering | Brain Station 23, Shohoz, Pathao, Chaldal, bKash, SELISE, Therap BD |
+| Mobile Development | Shohoz (React Native), bKash (Android) |
+| DevOps & Cloud | Upwork Enterprise Client (Remote) |
+| Machine Learning | DataAnnotation Tech (Remote) |
+| UI/UX & Design | Shajgoj, Toptal (Remote) |
+| Product Management | Pathao, Remote.com (Remote) |
+| Marketing & Content | Chaldal, HubSpot (Remote), Shohoz |
+| Human Resources | Brain Station 23, Deel (Remote) |
+| Finance & Accounting | bKash, Bookkeeper360 (Remote) |
+| Business Dev & Sales | SELISE, Salesforce (Remote) |
+| Data Analytics | Grameenphone, Fiverr Business (Remote) |
+| Operations & PM | Chaldal, Appen (Remote) |
+| Customer Success | Shohoz, Automattic (Remote) |
 
 ---
 

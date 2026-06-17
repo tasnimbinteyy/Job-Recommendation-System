@@ -56,16 +56,11 @@ export default auth((req) => {
 
   // Redirect logged-in but not onboarded users to onboarding
   // (skip if already on onboarding page or api routes)
-  if (
-    isLoggedIn &&
-    !onboarded &&
-    role !== "ADMIN" &&
-    !pathname.startsWith("/onboarding") &&
-    !pathname.startsWith("/api") &&
-    isProtectedRoute
-  ) {
+  if ( isLoggedIn && !onboarded && role !== "ADMIN" &&!pathname.startsWith("/onboarding") &&
+    !pathname.startsWith("/api") && isProtectedRoute) 
+    {
     return Response.redirect(new URL("/onboarding", nextUrl));
-  }
+    }
 });
 
 export const config = {

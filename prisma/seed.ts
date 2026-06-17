@@ -140,6 +140,176 @@ const JOB_LISTINGS = [
     requiredSkills: ["Java", "Spring Boot", "PostgreSQL", "REST API", "Git", "Agile", "Docker"],
   },
 
+  // ── UI/UX & DESIGN ──
+  {
+    title: "UI/UX Designer",
+    companyName: "Shajgoj",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 45,000 – 75,000",
+    description: "Shajgoj is looking for a creative UI/UX Designer to craft beautiful, user-friendly experiences for our beauty e-commerce platform. You will work closely with the product and engineering teams to design intuitive interfaces for web and mobile.",
+    requiredSkills: ["Figma", "UI/UX", "Wireframing", "Prototyping", "User Research", "Adobe XD"],
+  },
+  {
+    title: "Product Designer (Remote)",
+    companyName: "Toptal",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 1,200 – 2,000/month",
+    description: "Join Toptal's network as a freelance Product Designer working with top global startups. You will own end-to-end product design — from user research and wireframes to high-fidelity prototypes and design systems.",
+    requiredSkills: ["Figma", "UI/UX", "Prototyping", "Design Systems", "User Research", "CSS"],
+  },
+
+  // ── PRODUCT MANAGEMENT ──
+  {
+    title: "Product Manager",
+    companyName: "Pathao",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 1,00,000 – 1,60,000",
+    description: "Pathao is looking for a driven Product Manager to own the roadmap for our ride-sharing product. You will work with engineering, design, and data teams to define features, prioritize backlog, and ship products that delight millions of users.",
+    requiredSkills: ["Product Management", "Agile", "Scrum", "Roadmapping", "Data Analysis", "Figma"],
+  },
+  {
+    title: "Associate Product Manager (Remote)",
+    companyName: "Remote.com",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 1,000 – 1,800/month",
+    description: "Remote.com is hiring an Associate Product Manager to help build the future of global employment. You will assist senior PMs in defining product requirements, conducting user interviews, and tracking KPIs across our global HR platform.",
+    requiredSkills: ["Product Management", "Agile", "User Research", "Data Analysis", "Communication", "Roadmapping"],
+  },
+
+  // ── MARKETING & CONTENT ──
+  {
+    title: "Digital Marketing Manager",
+    companyName: "Chaldal",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 55,000 – 85,000",
+    description: "Chaldal is looking for a Digital Marketing Manager to drive customer acquisition and retention for Bangladesh's leading online grocery platform. You will lead SEO, SEM, social media, and email campaigns to grow our user base.",
+    requiredSkills: ["Digital Marketing", "SEO", "Google Ads", "Social Media Marketing", "Email Marketing", "Analytics"],
+  },
+  {
+    title: "Content Writer & SEO Specialist (Remote)",
+    companyName: "HubSpot",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 800 – 1,400/month",
+    description: "HubSpot is seeking a Content Writer & SEO Specialist to create high-quality blog posts, guides, and marketing copy that ranks on Google and drives inbound traffic. You will collaborate with the marketing team to execute content strategies.",
+    requiredSkills: ["Content Writing", "SEO", "Copywriting", "WordPress", "Google Analytics", "Keyword Research"],
+  },
+  {
+    title: "Social Media Marketing Executive",
+    companyName: "Shohoz",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 30,000 – 50,000",
+    description: "Join Shohoz's marketing team to manage and grow our social media presence across Facebook, Instagram, and TikTok. You will create engaging content, run campaigns, and analyze performance metrics to increase brand awareness.",
+    requiredSkills: ["Social Media Marketing", "Content Creation", "Canva", "Facebook Ads", "Analytics", "Copywriting"],
+  },
+
+  // ── HUMAN RESOURCES ──
+  {
+    title: "HR Manager",
+    companyName: "Brain Station 23",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 60,000 – 90,000",
+    description: "Brain Station 23 is looking for an experienced HR Manager to lead talent acquisition, employee engagement, and HR operations for our 500+ person engineering company. You will shape the culture and people strategy of a leading tech firm.",
+    requiredSkills: ["Recruitment", "HR Management", "Employee Relations", "Performance Management", "HRIS", "Communication"],
+  },
+  {
+    title: "Talent Acquisition Specialist (Remote)",
+    companyName: "Deel",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 900 – 1,500/month",
+    description: "Deel is hiring a Talent Acquisition Specialist to source, screen, and hire top talent across multiple countries. You will manage the full recruitment lifecycle, build talent pipelines, and partner with hiring managers globally.",
+    requiredSkills: ["Recruitment", "Talent Acquisition", "LinkedIn Recruiter", "Interviewing", "ATS", "Communication"],
+  },
+
+  // ── FINANCE & ACCOUNTING ──
+  {
+    title: "Financial Analyst",
+    companyName: "bKash Limited",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 70,000 – 1,10,000",
+    description: "bKash is looking for a Financial Analyst to support business decisions through financial modeling, forecasting, and reporting. You will analyze revenue trends, prepare dashboards for leadership, and contribute to strategic planning.",
+    requiredSkills: ["Financial Analysis", "Excel", "Financial Modeling", "SQL", "Power BI", "Accounting"],
+  },
+  {
+    title: "Accounting & Finance Manager (Remote)",
+    companyName: "Bookkeeper360",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 1,000 – 1,800/month",
+    description: "Bookkeeper360 provides cloud accounting services to US-based small businesses. We are hiring an Accounting Manager to manage client accounts, prepare financial statements, and ensure compliance with US accounting standards.",
+    requiredSkills: ["Accounting", "QuickBooks", "Financial Reporting", "Excel", "Bookkeeping", "US GAAP"],
+  },
+
+  // ── BUSINESS DEVELOPMENT & SALES ──
+  {
+    title: "Business Development Executive",
+    companyName: "SELISE Digital Platforms",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 50,000 – 80,000",
+    description: "SELISE is seeking a Business Development Executive to identify and close new enterprise client opportunities across South and Southeast Asia. You will build relationships with C-level stakeholders and drive revenue growth for our digital platform solutions.",
+    requiredSkills: ["Sales", "Business Development", "CRM", "Negotiation", "Communication", "Lead Generation"],
+  },
+  {
+    title: "Sales Development Representative (Remote)",
+    companyName: "Salesforce",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 800 – 1,400/month",
+    description: "Salesforce is hiring a Sales Development Representative to prospect, qualify, and generate new pipeline for our APAC sales team. You will conduct outreach via calls, emails, and LinkedIn to connect decision-makers with our CRM solutions.",
+    requiredSkills: ["Sales", "Lead Generation", "CRM", "Cold Outreach", "Communication", "Salesforce"],
+  },
+
+  // ── DATA ANALYTICS (NON-ENGINEERING) ──
+  {
+    title: "Business Analyst",
+    companyName: "Grameenphone",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 75,000 – 1,15,000",
+    description: "Grameenphone is hiring a Business Analyst to bridge the gap between business stakeholders and technology teams. You will gather requirements, document processes, analyze data, and ensure successful delivery of digital transformation projects.",
+    requiredSkills: ["Business Analysis", "SQL", "Excel", "Power BI", "Requirements Gathering", "Agile"],
+  },
+  {
+    title: "Data Analyst (Remote)",
+    companyName: "Fiverr Business",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 1,000 – 1,700/month",
+    description: "Work as a remote Data Analyst for international clients through Fiverr Business. You will clean and analyze datasets, build dashboards, and deliver actionable insights to help businesses make data-driven decisions.",
+    requiredSkills: ["Data Analysis", "SQL", "Excel", "Tableau", "Python", "Google Analytics"],
+  },
+
+  // ── OPERATIONS & PROJECT MANAGEMENT ──
+  {
+    title: "Operations Manager",
+    companyName: "Chaldal",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 80,000 – 1,20,000",
+    description: "Chaldal is looking for an Operations Manager to oversee warehouse operations, last-mile delivery, and vendor management. You will optimize processes to ensure fast, reliable grocery delivery to thousands of customers daily.",
+    requiredSkills: ["Operations Management", "Supply Chain", "Excel", "Team Leadership", "Process Improvement", "Communication"],
+  },
+  {
+    title: "Project Manager (Remote)",
+    companyName: "Appen",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 1,200 – 2,000/month",
+    description: "Appen is hiring a Project Manager to lead AI data collection and annotation projects for global technology clients. You will manage project timelines, coordinate remote teams, and ensure quality deliverables across multiple concurrent projects.",
+    requiredSkills: ["Project Management", "Agile", "Scrum", "Communication", "Risk Management", "MS Project"],
+  },
+
+  // ── CUSTOMER SUCCESS ──
+  {
+    title: "Customer Success Manager",
+    companyName: "Shohoz",
+    location: "Dhaka, Bangladesh",
+    salaryRange: "BDT 40,000 – 65,000",
+    description: "Shohoz is hiring a Customer Success Manager to ensure our B2B clients get maximum value from our platform. You will onboard new clients, handle escalations, and build long-term relationships to drive retention and upsell opportunities.",
+    requiredSkills: ["Customer Success", "CRM", "Communication", "Problem Solving", "Account Management", "Excel"],
+  },
+  {
+    title: "Technical Support Specialist (Remote)",
+    companyName: "Automattic",
+    location: "Remote – Bangladesh",
+    salaryRange: "USD 700 – 1,200/month",
+    description: "Automattic (makers of WordPress.com) is hiring a Technical Support Specialist to help customers resolve issues with their WordPress sites. You will troubleshoot problems via live chat, email, and forums, and contribute to documentation.",
+    requiredSkills: ["Customer Support", "WordPress", "HTML", "CSS", "Communication", "Troubleshooting"],
+  },
+
   // ── REMOTE / INTERNATIONAL ──
   {
     title: "Frontend Developer (Remote)",

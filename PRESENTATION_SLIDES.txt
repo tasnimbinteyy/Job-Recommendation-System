@@ -1,0 +1,394 @@
+================================================================
+   PRESENTATION SLIDES — SLIDE CONTENT
+   Modeling Skill Affinity for Personalized
+   Employment Matching Systems
+================================================================
+Presented by  : Tasnim Bintey Naser
+Supervisor    : Debabrata Mallick
+Department    : CSE, USTC
+Date          : May 2, 2026
+Total Slides  : 13
+Target Time   : 3 Minutes
+================================================================
+
+
+================================================================
+SLIDE 1 — TITLE SLIDE
+================================================================
+
+Title:
+  Modeling Skill Affinity for Personalized
+  Employment Matching Systems
+
+Subtitle:
+  A Full-Stack AI-Powered Job Recommendation Platform
+
+Presented by : Tasnim Bintey Naser
+Supervised by: Debabrata Mallick
+Department   : Computer Science and Engineering
+University   : University of Science & Technology, Chittagong
+Date         : May 2, 2026
+
+[Add university logo here]
+
+
+================================================================
+SLIDE 2 — OUTLINE
+================================================================
+
+Title: Presentation Outline
+
+1. Problem Statement
+2. Related Work & Comparison
+3. Objectives
+4. System Architecture
+5. AI Algorithms
+6. Key Features
+7. Database Design
+8. Role-Based Access Control
+9. Implementation & Testing
+10. Results & Evaluation
+11. Challenges & Future Work
+12. Conclusion
+13. References
+
+
+================================================================
+SLIDE 3 — RELATED WORK & COMPARISON
+================================================================
+
+Title: Related Work — Existing Job Recommendation Systems
+
+LinkedIn:
+  - Proprietary ML engine — profile completeness,
+    connection network, skill endorsements
+  - Opaque algorithm, enterprise-grade
+  - No explicit match score shown to users
+  - Not accessible for academic replication [1]
+
+Indeed:
+  - Collaborative Filtering + keyword matching
+  - Uses behavioral signals (click-through rates,
+    application completions)
+  - No skill gap feedback or resume scoring [2]
+
+Glassdoor:
+  - Focuses on company reviews and salary data
+  - No algorithmic job-candidate matching [3]
+
+BDJobs.com (Bangladesh):
+  - Basic keyword search + category filtering only
+  - Zero AI-based matching capability
+  - Represents current state of local BD market
+
+Table 2.1 — Platform Comparison
+
+  Platform     | AI Matching          | Skill Gap | Resume Score | Open API
+  -------------|----------------------|-----------|--------------|----------
+  LinkedIn     | Proprietary ML       |    No     |     No       |   No
+  Indeed       | Collaborative Filter |    No     |     No       |   No
+  Glassdoor    | None                 |    No     |     No       |   No
+  BDJobs       | Keyword Only         |    No     |     No       |   No
+  This System  | Cosine Similarity    |    Yes    |     Yes      |   Yes (REST)
+
+Research Gap Identified:
+  - No existing platform provides transparent match scores
+  - No open, reproducible AI matching for academic use
+  - No locally-focused AI platform for Bangladesh tech market
+  - This system addresses all three gaps
+
+
+================================================================
+SLIDE 4 — PROBLEM STATEMENT
+================================================================
+
+Title: The Problem
+
+The Challenge:
+  - Millions of job listings — hard to find the right match
+  - No platform shows HOW WELL a candidate matches a job
+  - No feedback on WHICH SKILLS are missing
+  - No tool to measure profile strength against the market
+
+The Gap in Bangladesh:
+  - Companies like Brain Station 23, Pathao, bKash
+    struggle to find right candidates
+  - Graduates cannot identify what skills they lack
+  - No locally-focused AI job matching platform exists
+
+[Diagram: Job Seeker <-- Gap --> Employer]
+
+
+================================================================
+SLIDE 5 — OBJECTIVES
+================================================================
+
+Title: Project Objectives
+
+  1. Implement Cosine Similarity for job-candidate matching
+  2. Build Skill Gap Analysis per job application
+  3. Develop Resume Scoring Engine (0–100)
+  4. Create Role-Based Access Control (3 roles)
+  5. Integrate Adzuna API for live real-world jobs
+  6. Build automated notification system
+  7. Deploy on cloud (Vercel + Neon PostgreSQL)
+
+
+================================================================
+SLIDE 6 — SYSTEM ARCHITECTURE
+================================================================
+
+Title: System Architecture
+
+  [Client Browser]
+        | HTTPS
+        v
+  [Next.js 16 App — Vercel Edge]
+  App Router  |  API Routes  |  Middleware (RBAC)
+        |
+        +-------------------+
+        |                   |
+  [Prisma ORM v7]    [Adzuna Jobs API]
+        |
+  [Neon PostgreSQL]
+  Users | Jobs | Applications | Skills
+  Notifications | SavedJobs
+
+Tech Stack:
+  Framework : Next.js 16, TypeScript, Tailwind CSS v4
+  Database  : PostgreSQL (Neon) via Prisma ORM
+  Auth      : NextAuth.js v5 — Google + GitHub OAuth
+  Hosting   : Vercel (frontend + API) + Neon (DB)
+
+
+================================================================
+SLIDE 7 — AI ALGORITHMS
+================================================================
+
+Title: AI Algorithms
+
+1. Cosine Similarity — Job Matching
+
+   matchScore = ( |A ∩ B| / √(|A| × |B|) ) × 100
+
+   Example:
+     Candidate skills : {React, TypeScript, Node.js}           |A| = 3
+     Job requirements : {React, TypeScript, PostgreSQL, Docker} |B| = 4
+     Common skills    : {React, TypeScript}                    |A∩B| = 2
+
+     matchScore = (2 / √12) × 100 = 57.7%
+
+2. Skill Gap Analysis
+     gap = Job Skills − Candidate Skills = {PostgreSQL, Docker}
+
+3. Resume Scoring (0–100)
+
+   Component     | Points | Criteria
+   --------------|--------|------------------------------
+   Skill Count   |   40   | Number of relevant skills
+   Market Demand |   40   | Demand in current job postings
+   Experience    |   20   | Experience section filled
+
+
+================================================================
+SLIDE 8 — KEY FEATURES
+================================================================
+
+Title: Key Features
+
+For Job Seekers:
+  - AI match score on every job
+  - Skill gap shown per application
+  - Resume score with feedback
+  - CV upload — skills auto-extracted
+  - Company recommendations (AI ranked)
+
+For Employers:
+  - Post and manage job listings
+  - View applicants with match scores
+  - Auto notification when someone applies
+
+For Admin:
+  - Manage all users, jobs, applications
+  - Change user roles, skills library management
+
+Special:
+  - AI Agent Modal — live profile scan
+  - Live Jobs from Adzuna API (345,000+ real jobs)
+  - Auto notifications (5 triggers)
+
+
+================================================================
+SLIDE 9 — DATABASE DESIGN
+================================================================
+
+Title: Database Design
+
+Tables:
+
+  Table                | Key Relationships
+  ---------------------|-------------------------------------
+  User                 | Has many Applications, Jobs, Notifications
+  Job                  | Belongs to User (Employer)
+  Application          | User + Job (unique pair), stores matchScore
+  Skill                | Master skills library
+  Notification         | Belongs to User
+  SavedJob             | User + Job (unique pair)
+  NewsletterSubscriber | Email only
+
+Normalization:
+  - 1NF: Atomic values, primary key in every table
+  - 2NF: No partial dependencies
+  - 3NF: No transitive dependencies
+
+Total Migrations Applied: 9
+
+
+================================================================
+SLIDE 10 — ROLE-BASED ACCESS CONTROL
+================================================================
+
+Title: Role-Based Access Control (RBAC)
+
+Three User Roles:
+
+  Role     | Dashboard  | Key Access
+  ---------|------------|----------------------------------
+  STUDENT  | /overview  | Browse, Apply, Resume Score
+  EMPLOYER | /jobs      | Post Jobs, View Applicants
+  ADMIN    | /admin     | Manage All Users, Jobs, Skills
+
+Route Protection (Middleware):
+  /admin/*     → ADMIN only
+  /overview/*  → Authenticated + Onboarded
+  /profile/*   → Authenticated + Onboarded
+  /onboarding  → Authenticated + NOT yet Onboarded
+
+Onboarding Flow:
+  Sign In → Select Role → Save to DB → Redirect to Dashboard
+
+
+================================================================
+SLIDE 11 — IMPLEMENTATION & TESTING
+================================================================
+
+Title: Implementation & Testing
+
+Development: Agile Methodology — 5 Sprints (10 weeks)
+
+  Sprint | Deliverables
+  -------|------------------------------------------
+  1      | Jobs CRUD, Auth, Route Protection
+  2      | AI Matching, Skill Gap, Skills Library
+  3      | Resume Scoring, Company Recommendations
+  4      | Employer Dashboard, Admin Panel
+  5      | Notifications, AI Agent, Adzuna Live Jobs
+
+Testing Results:
+
+  Test Type              | Result
+  -----------------------|----------
+  TypeScript Build       | 0 Errors
+  API Endpoints (21)     | All PASS
+  Role-Based Access      | All PASS
+  Notification Triggers  | All PASS (5/5)
+  Live Jobs (Adzuna)     | PASS
+
+
+================================================================
+SLIDE 12 — RESULTS & EVALUATION
+================================================================
+
+Title: Results & Evaluation
+
+AI Matching Accuracy:
+
+  Scenario                      | Match Score
+  ------------------------------|------------
+  3 of 4 required skills match  |   86.6%
+  1 of 4 required skills match  |   28.9%
+  0 skills match                |    0.0%
+
+Resume Scoring:
+  - 8+ in-demand skills + experience → 100/100
+  - 4 skills, partial demand         →  45/100
+
+All Objectives Met:
+
+  No. | Objective                        | Status
+  ----|----------------------------------|----------
+  1   | Cosine Similarity matching       | COMPLETE
+  2   | Skill Gap Analysis               | COMPLETE
+  3   | Resume Scoring (0–100)           | COMPLETE
+  4   | Role-based access (3 roles)      | COMPLETE
+  5   | Adzuna API integration           | COMPLETE
+  6   | Automated notifications          | COMPLETE
+  7   | Cloud deployment (Vercel + Neon) | COMPLETE
+
+Live URL: https://job-recommendation-system-delta.vercel.app
+
+
+================================================================
+SLIDE 13 — CHALLENGES, FUTURE WORK & CONCLUSION
+================================================================
+
+Title: Challenges, Future Work & Conclusion
+
+Challenges Faced:
+  1. Next.js App Router — steep learning curve for new server/client patterns
+  2. JWT Session Refresh — token did not update after role change in onboarding
+  3. TypeScript Type Conflicts — union types caused errors in applications page
+  4. Adzuna API — no job listings available for Bangladesh
+  5. PDF Parsing — only works for text-based PDFs, not scanned images
+
+Future Work:
+
+  1. Semantic Skill Matching — use Word2Vec so "React" and "ReactJS"
+     are recognized as the same skill, improving match accuracy.
+
+  2. Full 3NF Normalization — move skills from text arrays into
+     a proper junction table to eliminate redundancy.
+
+  3. Real-Time Notifications — replace polling with WebSocket
+     or SSE for instant alerts without page refresh.
+
+  4. Bangladesh Job Listings — integrate BDJobs.com once a
+     public API becomes available.
+
+  5. Mobile App — React Native app using the same backend API.
+
+Conclusion:
+  This project delivered a full-stack AI job recommendation platform
+  with Cosine Similarity matching, Skill Gap Analysis, and Resume
+  Scoring — supporting three user roles and live job integration.
+  Built entirely on free-tier infrastructure with no paid AI APIs,
+  it proves that meaningful AI-driven recommendations are accessible
+  to all.
+
+Live Demo : https://job-recommendation-system-delta.vercel.app
+GitHub    : https://github.com/tasnimbinteyy/Job-Recommendation-System
+
+References (IEEE Format):
+  [1] LinkedIn Engineering, "Personalized Job Recommendations
+      at LinkedIn," LinkedIn Engineering Blog, 2019.
+      [Online]. Available: https://engineering.linkedin.com
+  [2] Indeed Engineering, "How Indeed's Job Recommendation
+      Engine Works," Indeed Engineering Blog, 2020.
+      [Online]. Available: https://engineering.indeedblog.com
+  [3] Glassdoor, "About Glassdoor," Glassdoor Inc., 2024.
+      [Online]. Available: https://www.glassdoor.com/about-us
+  [4] J. Bobadilla et al., "Recommender Systems Survey,"
+      Knowledge-Based Syst., vol. 46, pp. 109–132, 2013.
+  [5] G. Salton & M. J. McGill, Introduction to Modern
+      Information Retrieval. McGraw-Hill, 1983.
+  [6] D. F. Ferraiolo et al., "Proposed NIST Standard for
+      RBAC," ACM Trans. Inf. Syst. Secur., vol. 4, no. 3,
+      pp. 224–274, Aug. 2001.
+  [7] K. Raza and R. Prasad, "A Systematic Review of Job
+      Recommender Systems," IJCA, vol. 182, no. 50, 2019.
+  [8] Vercel Inc., "Next.js 16 Documentation," 2025.
+      [Online]. Available: https://nextjs.org/docs
+
+================================================================
+END OF SLIDE CONTENT
+================================================================

@@ -1,6 +1,23 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import db from "@/lib/db";
+import { getMLMatchScore } from "@/app/api/match-score/route";
+
+type JobItem = {
+  id: string;
+  title: string;
+  companyName: string;
+  location: string;
+  requiredSkills: string[];
+  _count: { applications: number };
+};
+
+type CompanyEntry = {
+  companyName: string;
+  location: string;
+  jobs: JobItem[];
+  totalApplications: number;
+};
 
 // GET /api/recommendations — recommend companies based on user skill match
 export async function GET() {
@@ -15,9 +32,8 @@ export async function GET() {
       select: { skills: true },
     });
 
-    const userSkills = (user?.skills ?? []).map((s) => s.toLowerCase());
+    const userSkills = user?.skills ?? [];
 
-    // Get all jobs grouped by company
     const jobs = await db.job.findMany({
       select: {
         id: true,
@@ -30,16 +46,8 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
-    // Group jobs by company and calculate avg match score
-    const companyMap: Record<string, {
-      companyName: string;
-      location: string;
-      jobs: typeof jobs;
-      avgMatch: number;
-      topSkills: string[];
-      totalApplications: number;
-    }> = {};
-
+    // Group jobs by company
+    const companyMap: Record<string, CompanyEntry> = {};
     jobs.forEach((job) => {
       const key = job.companyName;
       if (!companyMap[key]) {
@@ -47,8 +55,6 @@ export async function GET() {
           companyName: job.companyName,
           location: job.location,
           jobs: [],
-          avgMatch: 0,
-          topSkills: [],
           totalApplications: 0,
         };
       }
@@ -56,46 +62,50 @@ export async function GET() {
       companyMap[key].totalApplications += job._count.applications;
     });
 
-    // Calculate match score per company
-    const recommendations = Object.values(companyMap).map((company) => {
-      const allSkills: string[] = [];
-      let totalMatch = 0;
+    // Calculate ML match score per company
+    const recommendations = await Promise.all(
+      Object.values(companyMap).map(async (company) => {
+        let totalMatch = 0;
 
-      company.jobs.forEach((job) => {
-        const jobSkills = job.requiredSkills.map((s) => s.toLowerCase());
-        jobSkills.forEach((s) => { if (!allSkills.includes(s)) allSkills.push(s); });
-
-        if (userSkills.length > 0 && jobSkills.length > 0) {
-          const intersection = userSkills.filter((s) => jobSkills.includes(s)).length;
-          totalMatch += (intersection / Math.sqrt(userSkills.length * jobSkills.length)) * 100;
+        for (const job of company.jobs) {
+          if (userSkills.length > 0 && job.requiredSkills.length > 0) {
+            const mlResult = await getMLMatchScore({
+              user_skills: userSkills,
+              job_skills: job.requiredSkills,
+              user_experience: "mid",
+              job_experience: "mid",
+              user_title: "",
+              job_title: job.title,
+            });
+            totalMatch += mlResult.matchScore;
+          }
         }
-      });
 
-      const avgMatch = company.jobs.length > 0 ? totalMatch / company.jobs.length : 0;
+        const avgMatch = company.jobs.length > 0 ? totalMatch / company.jobs.length : 0;
 
-      // Top skills demanded by this company
-      const skillFreq: Record<string, number> = {};
-      company.jobs.forEach((job) => {
-        job.requiredSkills.forEach((s) => {
-          skillFreq[s] = (skillFreq[s] ?? 0) + 1;
+        // Top skills demanded by this company
+        const skillFreq: Record<string, number> = {};
+        company.jobs.forEach((job) => {
+          job.requiredSkills.forEach((s) => {
+            skillFreq[s] = (skillFreq[s] ?? 0) + 1;
+          });
         });
-      });
-      const topSkills = Object.entries(skillFreq)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(([s]) => s);
+        const topSkills = Object.entries(skillFreq)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([s]) => s);
 
-      return {
-        companyName: company.companyName,
-        location: company.location,
-        openPositions: company.jobs.length,
-        totalApplications: company.totalApplications,
-        avgMatchScore: parseFloat(avgMatch.toFixed(1)),
-        topSkills,
-      };
-    });
+        return {
+          companyName: company.companyName,
+          location: company.location,
+          openPositions: company.jobs.length,
+          totalApplications: company.totalApplications,
+          avgMatchScore: parseFloat(avgMatch.toFixed(1)),
+          topSkills,
+        };
+      })
+    );
 
-    // Sort by match score descending
     recommendations.sort((a, b) => b.avgMatchScore - a.avgMatchScore);
 
     return NextResponse.json({ data: recommendations });

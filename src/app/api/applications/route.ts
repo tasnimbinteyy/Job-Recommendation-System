@@ -86,18 +86,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Already applied to this job" }, { status: 409 });
     }
 
-    // Cosine Similarity match score calculation
+    // ML-based match score calculation
     const user = await db.user.findUnique({ 
       where: { id: session.user.id }, 
-      select: { skills: true, name: true } 
+      select: { skills: true, name: true, experience: true } 
     });
-    const userSkills = (user?.skills ?? []).map((s) => s.toLowerCase());
-    const jobSkills = job.requiredSkills.map((s) => s.toLowerCase());
-    let matchScore = 0;
-    if (userSkills.length > 0 && jobSkills.length > 0) {
-      const intersection = userSkills.filter((s) => jobSkills.includes(s)).length;
-      matchScore = (intersection / Math.sqrt(userSkills.length * jobSkills.length)) * 100;
-    }
+    const userSkills = user?.skills ?? [];
+    const jobSkills = job.requiredSkills;
+
+    const { getMLMatchScore } = await import("@/app/api/match-score/route");
+    const mlResult = await getMLMatchScore({
+      user_skills: userSkills,
+      job_skills: jobSkills,
+      user_experience: user?.experience ? "mid" : "entry",
+      job_experience: "mid",
+      user_title: "",
+      job_title: job.title,
+    });
+    const matchScore = mlResult.matchScore;
 
     const application = await db.application.create({
       data: {

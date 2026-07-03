@@ -130,17 +130,42 @@ export default function AIAgentModal({ isOpen, onClose, isLoggedIn, userId }: Pr
         return;
       }
 
-      // Compute top 3 matched jobs
+      // Compute top 3 matched jobs using ML model
       const allJobs = jobsRes?.data ?? [];
-      const topJobs: MatchedJob[] = allJobs
-        .map((job: any) => ({
-          id: job.id,
-          title: job.title,
-          companyName: job.companyName,
-          location: job.location,
-          matchScore: computeMatch(userSkills, job.requiredSkills),
-          requiredSkills: job.requiredSkills,
-        }))
+      const jobsWithScores = await Promise.all(
+        allJobs.map(async (job: any) => {
+          try {
+            const res = await fetch("/api/match-score", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                user_skills: userSkills,
+                job_skills: job.requiredSkills,
+                job_title: job.title,
+              }),
+            });
+            const json = await res.json();
+            return {
+              id: job.id,
+              title: job.title,
+              companyName: job.companyName,
+              location: job.location,
+              matchScore: json.data?.matchScore ?? computeMatch(userSkills, job.requiredSkills),
+              requiredSkills: job.requiredSkills,
+            };
+          } catch {
+            return {
+              id: job.id,
+              title: job.title,
+              companyName: job.companyName,
+              location: job.location,
+              matchScore: computeMatch(userSkills, job.requiredSkills),
+              requiredSkills: job.requiredSkills,
+            };
+          }
+        })
+      );
+      const topJobs: MatchedJob[] = jobsWithScores
         .filter((j: MatchedJob) => j.matchScore > 0)
         .sort((a: MatchedJob, b: MatchedJob) => b.matchScore - a.matchScore)
         .slice(0, 3);

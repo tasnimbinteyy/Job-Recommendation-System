@@ -24,6 +24,7 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
         createdAt: true,
         publicProfile: true,
         showResumeScore: true,
+        _count: { select: { applications: true } },
         applications: {
           orderBy: { createdAt: "desc" },
           include: {
